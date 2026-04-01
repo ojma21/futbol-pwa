@@ -72,20 +72,31 @@ async function login() {
 function showUser() {
   const email = localStorage.getItem("email");
 
-  if (email) {
-    document.getElementById("authBox").style.display = "none";
-    document.getElementById("appContent").style.display = "block";
+  const authBox = document.getElementById("authBox");
+  const appContent = document.getElementById("appContent");
+  const userBox = document.getElementById("userBox");
 
-    document.getElementById("userBox").classList.remove("hidden");
+  if (email) {
+    // ✅ USUARIO LOGUEADO
+    authBox.style.display = "none";
+    appContent.style.display = "block";
+    userBox.style.display = "flex";
+
     document.getElementById("userEmail").textContent = email;
 
+    // 🔥 cargar datos
+    loadLiveMatches();
+    loadTodayMatches();
+    loadStandings();
+    loadFavorites();
+
   } else {
-    document.getElementById("userBox").classList.add("hidden");
-    document.getElementById("appContent").style.display = "none";
-    document.getElementById("authBox").style.display = "block";
+    // ❌ NO LOGUEADO
+    authBox.style.display = "block";
+    appContent.style.display = "none";
+    userBox.style.display = "none";
   }
 }
-
 
 //LOGOUT
 function logout() {
