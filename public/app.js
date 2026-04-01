@@ -74,11 +74,13 @@ function showUser() {
 
   if (email) {
     document.getElementById("authBox").classList.add("hidden");
+    document.getElementById("appContent").classList.remove("hidden");
     document.getElementById("userBox").classList.remove("hidden");
 
-    document.getElementById("userEmail").textContent = "👤 " + email;
+    document.getElementById("userEmail").textContent = email;
   }
 }
+
 
 //LOGOUT
 function logout() {
@@ -86,6 +88,13 @@ function logout() {
   localStorage.removeItem("email");
 
   location.reload();
+}
+
+
+//NAVEGACION TIPO APP
+function showTab(tab) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.getElementById(tab).classList.add("active");
 }
 
 

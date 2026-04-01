@@ -2,20 +2,26 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fútbol App</title>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
+<!-- HEADER -->
+<header class="header">
+  <h1>⚽ FutbolApp</h1>
+  <div id="userBox" class="user-box hidden">
+    <span id="userEmail"></span>
+    <button onclick="logout()">Salir</button>
+  </div>
+</header>
 
-<p id="msg" style="color:red;"></p>
-document.getElementById("msg").textContent = "Error...";
-
-
-<div class="auth-container" id="authBox">
-  <h2>⚽ Fútbol App</h2>
+<!-- LOGIN -->
+<div id="authBox" class="auth-container">
+  <h2>Bienvenido 👋</h2>
 
   <input id="email" placeholder="Correo">
   <input id="password" type="password" placeholder="Contraseña">
@@ -26,49 +32,48 @@ document.getElementById("msg").textContent = "Error...";
   <p id="msg"></p>
 </div>
 
-<!-- USUARIO LOGUEADO -->
-<div class="user-bar hidden" id="userBox">
-  <span id="userEmail"></span>
-  <button onclick="logout()">Cerrar sesión</button>
-</div>
+<!-- APP -->
+<main id="appContent" class="hidden">
 
-<div class="container">
-<div class="card">
-  <h2>⭐ Mis equipos</h2>
-  <div id="favorites"></div>
-</div>
+  <!-- NAV -->
+  <nav class="tabs">
+    <button onclick="showTab('live')">En vivo</button>
+    <button onclick="showTab('today')">Hoy</button>
+    <button onclick="showTab('table')">Tabla</button>
+    <button onclick="showTab('fav')">⭐</button>
+  </nav>
 
-  <div class="card">
-    <h2>Tus Ligas Favoritas</h2>
-    <div id="matches"></div>
-  </div>
+  <!-- TAB: LIVE -->
+  <section id="live" class="tab active">
 
-<select id="liveLeague" onchange="loadLiveMatches()">
-<button onclick="addFavorite('${match.teams.home.name}', '${match.teams.home.logo}')">⭐</button>
-  <option value="all">🌍 Todas</option>
-  <option value="140">🇪🇸 La Liga</option>
-  <option value="39">🏴 Premier League</option>
-  <option value="135">🇮🇹 Serie A</option>
-  <option value="78">🇩🇪 Bundesliga</option>
-</select>
-<h2>🔥 Partidos en vivo</h2>
-<div id="live"></div>
+    <select id="liveLeague" onchange="loadLiveMatches()">
+      <option value="all">🌍 Todas</option>
+      <option value="140">🇪🇸 La Liga</option>
+      <option value="39">🏴 Premier League</option>
+      <option value="135">🇮🇹 Serie A</option>
+      <option value="78">🇩🇪 Bundesliga</option>
+    </select>
 
-<div class="card">
-  <h2>📅 Partidos de hoy</h2>
-  <div id="today"></div>
-</div>
+    <div id="live"></div>
+  </section>
 
-  <div class="card">
-    <h2>Tabla de posiciones</h2>
+  <!-- TAB: TODAY -->
+  <section id="today" class="tab">
+    <div id="today"></div>
+  </section>
+
+  <!-- TAB: TABLE -->
+  <section id="table" class="tab">
+
+    <select id="leagueSelect" onchange="loadStandings()">
+      <option value="140">🇪🇸 La Liga</option>
+      <option value="39">🏴 Premier League</option>
+      <option value="135">🇮🇹 Serie A</option>
+      <option value="78">🇩🇪 Bundesliga</option>
+    </select>
+
     <table class="table">
       <thead>
-	<select id="leagueSelect" onchange="loadStandings()">
-  <option value="140">🇪🇸 La Liga</option>
-  <option value="39">🏴 Premier League</option>
-  <option value="135">🇮🇹 Serie A</option>
-  <option value="78">🇩🇪 Bundesliga</option>
-</select>
         <tr>
           <th>Equipo</th>
           <th>Pts</th>
@@ -78,24 +83,25 @@ document.getElementById("msg").textContent = "Error...";
       </thead>
       <tbody id="table"></tbody>
     </table>
-  </div>
+  </section>
 
-  <div class="card">
-    <h2>Predicción</h2>
-    <input id="pTeamA" placeholder="Equipo A">
-    <input id="pTeamB" placeholder="Equipo B">
-    <button onclick="predict()">Predecir</button>
-    <p id="result"></p>
-  </div>
+  <!-- TAB: FAVORITOS -->
+  <section id="fav" class="tab">
+    <h2>⭐ Mis equipos</h2>
+    <div id="favorites"></div>
+  </section>
 
-</div>
+</main>
 
-<script src="app.js"></script>
+<!-- MODAL -->
 <div id="matchModal" class="modal">
   <div class="modal-content">
     <span onclick="closeModal()" class="close">&times;</span>
     <div id="matchDetail"></div>
   </div>
 </div>
+
+<script src="app.js"></script>
+
 </body>
 </html>
