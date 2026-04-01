@@ -75,17 +75,17 @@ function showUser() {
   if (email) {
     document.getElementById("authBox").style.display = "none";
     document.getElementById("appContent").style.display = "block";
-    document.getElementById("userBox").classList.remove("hidden");
 
+    document.getElementById("userBox").classList.remove("hidden");
     document.getElementById("userEmail").textContent = email;
 
-    // 🔥 CARGAR DATOS AL ENTRAR
-    loadLiveMatches();
-    loadTodayMatches();
-    loadStandings();
-    loadFavorites();
+  } else {
+    document.getElementById("userBox").classList.add("hidden");
+    document.getElementById("appContent").style.display = "none";
+    document.getElementById("authBox").style.display = "block";
   }
 }
+
 
 //LOGOUT
 function logout() {
@@ -363,7 +363,7 @@ async function loadStandings() {
   const res = await fetch(`${API}/standings/${league}`);
   const data = await res.json();
 
-  const table = document.getElementById("table");
+  const table = document.getElementById("tableBody");
   table.innerHTML = "";
 
   if (!data || data.length === 0) {
