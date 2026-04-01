@@ -43,22 +43,21 @@ app.post("/api/register", async (req, res) => {
     return res.status(400).json({ error: "Campos requeridos" });
   }
 
-  if (password.length < 4) {
-    return res.status(400).json({ error: "Contraseña muy corta" });
-  }
-
   const hashed = await bcrypt.hash(password, 10);
 
   db.run(
     "INSERT INTO users (email, password) VALUES (?, ?)",
     [email, hashed],
     function (err) {
-      if (err) return res.status(400).json({ error: "Usuario ya existe" });
-      res.json({ message: "Usuario creado" });
+      if (err) {
+        console.log("ERROR REGISTER:", err);
+        return res.status(400).json({ error: "Usuario ya existe o error DB" });
+      }
+
+      res.json({ message: "Usuario creado correctamente" });
     }
   );
 });
-
 
 //LOGIN
 app.post("/api/login", (req, res) => {

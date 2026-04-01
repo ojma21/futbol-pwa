@@ -73,14 +73,19 @@ function showUser() {
   const email = localStorage.getItem("email");
 
   if (email) {
-    document.getElementById("authBox").classList.add("hidden");
-    document.getElementById("appContent").classList.remove("hidden");
+    document.getElementById("authBox").style.display = "none";
+    document.getElementById("appContent").style.display = "block";
     document.getElementById("userBox").classList.remove("hidden");
 
     document.getElementById("userEmail").textContent = email;
+
+    // 🔥 CARGAR DATOS AL ENTRAR
+    loadLiveMatches();
+    loadTodayMatches();
+    loadStandings();
+    loadFavorites();
   }
 }
-
 
 //LOGOUT
 function logout() {
