@@ -54,7 +54,7 @@ app.get("/api/today", async (req, res) => {
       `https://v3.football.api-sports.io/fixtures?date=${today}`,
       {
         headers: {
-          "x-apisports-key": "5180e96385af052a12771a9b422f3f9f",
+          "x-apisports-key": process.env.API_FOOTBALL_KEY,
         },
       }
     );
@@ -72,7 +72,7 @@ app.get("/api/live-matches", async (req, res) => {
       "https://v3.football.api-sports.io/fixtures?live=all",
       {
         headers: {
-          "x-apisports-key": "5180e96385af052a12771a9b422f3f9f",
+          "x-apisports-key": process.env.API_FOOTBALL_KEY,
         },
       }
     );
@@ -107,7 +107,7 @@ app.get("/api/standings/:league", async (req, res) => {
       `https://api.football-data.org/v4/competitions/${code}/standings`,
       {
         headers: {
-          "X-Auth-Token": "825945bc345441c7bcdad3b836189ac7"
+          "X-Auth-Token": process.env.FOOTBALL_DATA_KEY
         }
       }
     );
@@ -132,7 +132,7 @@ app.get("/api/match/:id", async (req, res) => {
       `https://v3.football.api-sports.io/fixtures?id=${id}`,
       {
         headers: {
-          "x-apisports-key": "5180e96385af052a12771a9b422f3f9f",
+          "x-apisports-key": process.env.API_FOOTBALL_KEY,
         },
       }
     );
@@ -155,7 +155,7 @@ app.get("/api/match-stats/:id", async (req, res) => {
       `https://v3.football.api-sports.io/fixtures/statistics?fixture=${id}`,
       {
         headers: {
-          "x-apisports-key": "5180e96385af052a12771a9b422f3f9f",
+          "x-apisports-key": process.env.API_FOOTBALL_KEY,
         },
       }
     );
