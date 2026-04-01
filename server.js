@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 // 📌 BASE DE DATOS
-const db = new sqlite3.Database("./database.db");
+const db = new sqlite3.Database("/tmp/database.db");
 
 db.serialize(() => {
   db.run(`
