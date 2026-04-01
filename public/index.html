@@ -4,13 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fútbol App</title>
-  <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<!-- HEADER -->
 <header class="header">
   <h1>⚽ FutbolApp</h1>
   <div id="userBox" style="display:none;">
@@ -21,23 +19,17 @@
 
 <!-- LOGIN -->
 <div id="authBox" class="auth-container">
-<div id="userBox" class="user-box hidden">
   <h2>Bienvenido 👋</h2>
-
   <input id="email" placeholder="Correo">
   <input id="password" type="password" placeholder="Contraseña">
-
   <button onclick="login()">Entrar</button>
-  <button class="secondary" onclick="register()">Crear cuenta</button>
-
+  <button onclick="register()">Crear cuenta</button>
   <p id="msg"></p>
 </div>
 
 <!-- APP -->
-
 <main id="appContent" style="display:none;">
 
-  <!-- NAV -->
   <nav class="tabs">
     <button onclick="showTab('live')">En vivo</button>
     <button onclick="showTab('today')">Hoy</button>
@@ -45,33 +37,18 @@
     <button onclick="showTab('fav')">⭐</button>
   </nav>
 
-  <!-- TAB: LIVE -->
   <section id="live" class="tab active">
-
-    <select id="liveLeague" onchange="loadLiveMatches()">
-      <option value="all">🌍 Todas</option>
-      <option value="140">🇪🇸 La Liga</option>
-      <option value="39">🏴 Premier League</option>
-      <option value="135">🇮🇹 Serie A</option>
-      <option value="78">🇩🇪 Bundesliga</option>
-    </select>
-
-    <div id="live"></div>
+    <div id="liveMatches"></div>
   </section>
 
-  <!-- TAB: TODAY -->
   <section id="today" class="tab">
-    <div id="today"></div>
+    <div id="todayMatches"></div>
   </section>
 
-  <!-- TAB: TABLE -->
   <section id="table" class="tab">
-
     <select id="leagueSelect" onchange="loadStandings()">
-      <option value="140">🇪🇸 La Liga</option>
-      <option value="39">🏴 Premier League</option>
-      <option value="135">🇮🇹 Serie A</option>
-      <option value="78">🇩🇪 Bundesliga</option>
+      <option value="140">La Liga</option>
+      <option value="39">Premier League</option>
     </select>
 
     <table class="table">
@@ -87,21 +64,12 @@
     </table>
   </section>
 
-  <!-- TAB: FAVORITOS -->
   <section id="fav" class="tab">
-    <h2>⭐ Mis equipos</h2>
+    <h2>Favoritos</h2>
     <div id="favorites"></div>
   </section>
 
 </main>
-
-<!-- MODAL -->
-<div id="matchModal" class="modal">
-  <div class="modal-content">
-    <span onclick="closeModal()" class="close">&times;</span>
-    <div id="matchDetail"></div>
-  </div>
-</div>
 
 <script src="app.js"></script>
 
