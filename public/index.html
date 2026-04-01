@@ -14,18 +14,23 @@
 document.getElementById("msg").textContent = "Error...";
 
 
-<h1>⚽ Fútbol App</h1>
+<div class="auth-container" id="authBox">
+  <h2>⚽ Fútbol App</h2>
 
-<div class="card">
-  <h2>🔐 Login</h2>
-  <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
+  <input id="email" placeholder="Correo">
+  <input id="password" type="password" placeholder="Contraseña">
+
   <button onclick="login()">Entrar</button>
+  <button class="secondary" onclick="register()">Crear cuenta</button>
 
-  <h3>Registro</h3>
-  <button onclick="register()">Crear cuenta</button>
+  <p id="msg"></p>
 </div>
 
+<!-- USUARIO LOGUEADO -->
+<div class="user-bar hidden" id="userBox">
+  <span id="userEmail"></span>
+  <button onclick="logout()">Cerrar sesión</button>
+</div>
 
 <div class="container">
 <div class="card">

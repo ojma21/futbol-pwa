@@ -36,38 +36,58 @@ async function register() {
     alert("Error de conexión");
   }
 }
+
 //LOGIN
 async function login() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
+  const msg = document.getElementById("msg");
 
-  // 🔴 VALIDACIÓN
   if (!email || !password) {
-    alert("Completa todos los campos");
+    msg.textContent = "Completa todos los campos";
     return;
   }
 
-  try {
-    const res = await fetch(`${API}/login`, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ email, password })
-    });
+  const res = await fetch(`${API}/login`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ email, password })
+  });
 
-    const data = await res.json();
+  const data = await res.json();
 
-    if (!res.ok) {
-      alert(data.error || "Error en login");
-      return;
-    }
+  if (!res.ok) {
+    msg.textContent = data.error;
+    return;
+  }
 
-    localStorage.setItem("token", data.token);
-    alert("Bienvenido 👋");
+  // 🔥 GUARDAR SESIÓN
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("email", email);
 
-  } catch (err) {
-    alert("Error de conexión");
+  showUser();
+}
+
+//MOSTRAR USUARIO
+function showUser() {
+  const email = localStorage.getItem("email");
+
+  if (email) {
+    document.getElementById("authBox").classList.add("hidden");
+    document.getElementById("userBox").classList.remove("hidden");
+
+    document.getElementById("userEmail").textContent = "👤 " + email;
   }
 }
+
+//LOGOUT
+function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("email");
+
+  location.reload();
+}
+
 
 //GUARDAR FAV
 async function addFavorite(name, logo) {
@@ -372,6 +392,7 @@ loadLiveMatches();
 loadStandings();
 loadTodayMatches();
 loadFavorites();
+showUser();
 
 // 🔄 ACTUALIZACIÓN EN VIVO
 setInterval(loadLiveMatches, 30000);
