@@ -1,4 +1,4 @@
-const API = "http://192.168.0.214:3000/api"; // ⚠️ CAMBIA POR TU IP
+const API = "/api";
 
 // 📌 PARTIDOS GUARDADOS
 async function loadMatches() {
