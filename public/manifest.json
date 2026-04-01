@@ -1,0 +1,15 @@
+{
+  "name": "Fútbol App",
+  "short_name": "Fútbol",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b6623",
+  "theme_color": "#0b6623",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

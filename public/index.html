@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fútbol App</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>⚽ Fútbol App</h1>
+
+<div class="container">
+
+  <div class="card">
+    <h2>Tus Ligas Favoritas</h2>
+    <div id="matches"></div>
+  </div>
+
+<select id="liveLeague" onchange="loadLiveMatches()">
+  <option value="all">🌍 Todas</option>
+  <option value="140">🇪🇸 La Liga</option>
+  <option value="39">🏴 Premier League</option>
+  <option value="135">🇮🇹 Serie A</option>
+  <option value="78">🇩🇪 Bundesliga</option>
+</select>
+<h2>🔥 Partidos en vivo</h2>
+<div id="live"></div>
+
+<div class="card">
+  <h2>📅 Partidos de hoy</h2>
+  <div id="today"></div>
+</div>
+
+  <div class="card">
+    <h2>Tabla de posiciones</h2>
+    <table class="table">
+      <thead>
+	<select id="leagueSelect" onchange="loadStandings()">
+  <option value="140">🇪🇸 La Liga</option>
+  <option value="39">🏴 Premier League</option>
+  <option value="135">🇮🇹 Serie A</option>
+  <option value="78">🇩🇪 Bundesliga</option>
+</select>
+        <tr>
+          <th>Equipo</th>
+          <th>Pts</th>
+          <th>GF</th>
+          <th>GC</th>
+        </tr>
+      </thead>
+      <tbody id="table"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Predicción</h2>
+    <input id="pTeamA" placeholder="Equipo A">
+    <input id="pTeamB" placeholder="Equipo B">
+    <button onclick="predict()">Predecir</button>
+    <p id="result"></p>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+<div id="matchModal" class="modal">
+  <div class="modal-content">
+    <span onclick="closeModal()" class="close">&times;</span>
+    <div id="matchDetail"></div>
+  </div>
+</div>
+</body>
+</html>
