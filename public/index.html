@@ -23,6 +23,10 @@
 
 
 <div class="container">
+<div class="card">
+  <h2>⭐ Mis equipos</h2>
+  <div id="favorites"></div>
+</div>
 
   <div class="card">
     <h2>Tus Ligas Favoritas</h2>
@@ -30,6 +34,7 @@
   </div>
 
 <select id="liveLeague" onchange="loadLiveMatches()">
+<button onclick="addFavorite('${match.teams.home.name}', '${match.teams.home.logo}')">⭐</button>
   <option value="all">🌍 Todas</option>
   <option value="140">🇪🇸 La Liga</option>
   <option value="39">🏴 Premier League</option>

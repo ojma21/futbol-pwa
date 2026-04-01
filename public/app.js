@@ -36,6 +36,70 @@ async function login() {
 }
 
 
+//GUARDAR FAV
+async function addFavorite(name, logo) {
+  const token = localStorage.getItem("token");
+
+  await fetch(`${API}/favorites`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": token
+    },
+    body: JSON.stringify({
+      team_name: name,
+      team_logo: logo
+    })
+  });
+
+  alert("Agregado a favoritos ⭐");
+  loadFavorites();
+}
+
+//CARGAR FAV
+async function loadFavorites() {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API}/favorites`, {
+    headers: {
+      "Authorization": token
+    }
+  });
+
+  const data = await res.json();
+
+  const container = document.getElementById("favorites");
+  container.innerHTML = "";
+
+  data.forEach(f => {
+    const div = document.createElement("div");
+
+    div.innerHTML = `
+      <img src="${f.team_logo}" width="20"/>
+      ${f.team_name}
+      <button onclick="deleteFavorite(${f.id})">❌</button>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+
+//ELIMINAR FAV
+async function deleteFavorite(id) {
+  const token = localStorage.getItem("token");
+
+  await fetch(`${API}/favorites/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Authorization": token
+    }
+  });
+
+  loadFavorites();
+}
+
+
 // 📌 PARTIDOS GUARDADOS
 async function loadMatches() {
   const res = await fetch(`${API}/matches`);
@@ -274,6 +338,7 @@ async function predict() {
 loadLiveMatches();
 loadStandings();
 loadTodayMatches();
+loadFavorites();
 
 // 🔄 ACTUALIZACIÓN EN VIVO
 setInterval(loadLiveMatches, 30000);

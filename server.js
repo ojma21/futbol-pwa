@@ -68,6 +68,17 @@ app.post("/api/login", (req, res) => {
   });
 });
 
+//FAVORITOS
+db.run(`
+  CREATE TABLE IF NOT EXISTS favorites (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    team_name TEXT,
+    team_logo TEXT
+  )
+`);
+
+
 //PROTEGER RUTAS
 function auth(req, res, next) {
   const token = req.headers.authorization;
@@ -82,6 +93,46 @@ function auth(req, res, next) {
     res.status(401).json({ error: "Token inválido" });
   }
 }
+
+
+//FAVORITOS
+app.post("/api/favorites", auth, (req, res) => {
+  const { team_name, team_logo } = req.body;
+
+  db.run(
+    "INSERT INTO favorites (user_id, team_name, team_logo) VALUES (?, ?, ?)",
+    [req.user.id, team_name, team_logo],
+    function (err) {
+      if (err) return res.status(500).json(err);
+      res.json({ message: "Guardado" });
+    }
+  );
+});
+
+
+//OBTENER FAVORITOS
+app.get("/api/favorites", auth, (req, res) => {
+  db.all(
+    "SELECT * FROM favorites WHERE user_id = ?",
+    [req.user.id],
+    (err, rows) => {
+      if (err) return res.status(500).json(err);
+      res.json(rows);
+    }
+  );
+});
+
+//ELIMINAR FAVORITO
+app.delete("/api/favorites/:id", auth, (req, res) => {
+  db.run(
+    "DELETE FROM favorites WHERE id = ? AND user_id = ?",
+    [req.params.id, req.user.id],
+    function (err) {
+      if (err) return res.status(500).json(err);
+      res.json({ message: "Eliminado" });
+    }
+  );
+});
 
 
 // 📌 PARTIDOS GUARDADOS
