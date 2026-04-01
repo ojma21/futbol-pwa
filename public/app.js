@@ -1,5 +1,41 @@
 const API = "/api";
 
+//REGISTRO
+async function register() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  await fetch(`${API}/register`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ email, password })
+  });
+
+  alert("Usuario creado");
+}
+
+//LOGIN
+async function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const res = await fetch(`${API}/login`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ email, password })
+  });
+
+  const data = await res.json();
+
+  if (data.token) {
+    localStorage.setItem("token", data.token);
+    alert("Login exitoso");
+  } else {
+    alert("Error login");
+  }
+}
+
+
 // 📌 PARTIDOS GUARDADOS
 async function loadMatches() {
   const res = await fetch(`${API}/matches`);

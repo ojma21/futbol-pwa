@@ -8,6 +8,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+const SECRET = "secreto_super_seguro"; // luego lo ponemos en env
+
 // 📌 BASE DE DATOS
 const db = new sqlite3.Database("/tmp/database.db");
 
@@ -21,7 +26,63 @@ db.serialize(() => {
       scoreB INTEGER
     )
   `);
+db.run(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE,
+    password TEXT
+  )
+`);
 });
+
+//REGISTRO
+app.post("/api/register", async (req, res) => {
+  const { email, password } = req.body;
+
+  const hashed = await bcrypt.hash(password, 10);
+
+  db.run(
+    "INSERT INTO users (email, password) VALUES (?, ?)",
+    [email, hashed],
+    function (err) {
+      if (err) return res.status(400).json({ error: "Usuario ya existe" });
+      res.json({ message: "Usuario creado" });
+    }
+  );
+});
+
+//LOGIN
+app.post("/api/login", (req, res) => {
+  const { email, password } = req.body;
+
+  db.get("SELECT * FROM users WHERE email = ?", [email], async (err, user) => {
+    if (!user) return res.status(400).json({ error: "Usuario no encontrado" });
+
+    const valid = await bcrypt.compare(password, user.password);
+
+    if (!valid) return res.status(400).json({ error: "Contraseña incorrecta" });
+
+    const token = jwt.sign({ id: user.id }, SECRET);
+
+    res.json({ token });
+  });
+});
+
+//PROTEGER RUTAS
+function auth(req, res, next) {
+  const token = req.headers.authorization;
+
+  if (!token) return res.status(401).json({ error: "No autorizado" });
+
+  try {
+    const decoded = jwt.verify(token, SECRET);
+    req.user = decoded;
+    next();
+  } catch {
+    res.status(401).json({ error: "Token inválido" });
+  }
+}
+
 
 // 📌 PARTIDOS GUARDADOS
 app.get("/api/matches", (req, res) => {
