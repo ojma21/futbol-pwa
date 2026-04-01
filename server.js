@@ -39,6 +39,14 @@ db.run(`
 app.post("/api/register", async (req, res) => {
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    return res.status(400).json({ error: "Campos requeridos" });
+  }
+
+  if (password.length < 4) {
+    return res.status(400).json({ error: "Contraseña muy corta" });
+  }
+
   const hashed = await bcrypt.hash(password, 10);
 
   db.run(
@@ -51,9 +59,14 @@ app.post("/api/register", async (req, res) => {
   );
 });
 
+
 //LOGIN
 app.post("/api/login", (req, res) => {
   const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: "Campos requeridos" });
+  }
 
   db.get("SELECT * FROM users WHERE email = ?", [email], async (err, user) => {
     if (!user) return res.status(400).json({ error: "Usuario no encontrado" });
@@ -67,6 +80,7 @@ app.post("/api/login", (req, res) => {
     res.json({ token });
   });
 });
+
 
 //FAVORITOS
 db.run(`

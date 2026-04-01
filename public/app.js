@@ -2,39 +2,72 @@ const API = "/api";
 
 //REGISTRO
 async function register() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
 
-  await fetch(`${API}/register`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ email, password })
-  });
+  // 🔴 VALIDACIÓN
+  if (!email || !password) {
+    alert("Completa todos los campos");
+    return;
+  }
 
-  alert("Usuario creado");
-}
+  if (password.length < 4) {
+    alert("La contraseña debe tener al menos 4 caracteres");
+    return;
+  }
 
-//LOGIN
-async function login() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  try {
+    const res = await fetch(`${API}/register`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ email, password })
+    });
 
-  const res = await fetch(`${API}/login`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ email, password })
-  });
+    const data = await res.json();
 
-  const data = await res.json();
+    if (!res.ok) {
+      alert(data.error || "Error al registrar");
+      return;
+    }
 
-  if (data.token) {
-    localStorage.setItem("token", data.token);
-    alert("Login exitoso");
-  } else {
-    alert("Error login");
+    alert("Usuario creado ✅");
+
+  } catch (err) {
+    alert("Error de conexión");
   }
 }
+//LOGIN
+async function login() {
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
 
+  // 🔴 VALIDACIÓN
+  if (!email || !password) {
+    alert("Completa todos los campos");
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/login`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || "Error en login");
+      return;
+    }
+
+    localStorage.setItem("token", data.token);
+    alert("Bienvenido 👋");
+
+  } catch (err) {
+    alert("Error de conexión");
+  }
+}
 
 //GUARDAR FAV
 async function addFavorite(name, logo) {
