@@ -220,10 +220,7 @@ async function loadStandings(leagueId) {
     `).join("")}
   </div>
 `;
-
-    
-  });
-}
+  }
 
 // ============================
 // DETALLE (NO SE ROMPE)
