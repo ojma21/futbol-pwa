@@ -457,11 +457,15 @@ async function loadStandings() {
 // ============================
 
 document.addEventListener("DOMContentLoaded", () => {
-  loadMatches();
-  setInterval(loadMatches, 30000);
-});
+  loadMatches(); // 👈 SIEMPRE carga partidos
 
-document.addEventListener("DOMContentLoaded", () => {
-  showUser();
-  setInterval(loadLiveMatches, 30000);
+  const email = localStorage.getItem("email");
+
+  if (email) {
+    document.getElementById("userBox").style.display = "flex";
+    document.getElementById("userEmail").textContent = email;
+    document.getElementById("loginBtn").style.display = "none";
+  }
+
+  setInterval(loadMatches, 30000);
 });
