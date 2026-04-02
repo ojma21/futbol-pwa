@@ -249,32 +249,60 @@ async function openMatch(id) {
   const container = document.getElementById("matchDetail");
 
   container.innerHTML = `
-    <div class="match-header">
-      <img src="${teams.home.logo}">
-      <h2>${teams.home.name} vs ${teams.away.name}</h2>
-      <h3>${match.goals.home} - ${match.goals.away}</h3>
-      <img src="${teams.away.logo}">
+  <div class="match-header-pro">
+
+    <div>${match.league.name}</div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+      
+      <div>
+        <img src="${teams.home.logo}">
+        <div>${teams.home.name}</div>
+      </div>
+
+      <div class="score-big">
+        ${match.goals.home} - ${match.goals.away}
+      </div>
+
+      <div>
+        <img src="${teams.away.logo}">
+        <div>${teams.away.name}</div>
+      </div>
+
     </div>
 
-    <h3>📊 Estadísticas</h3>
-    ${stats.map(s => `
-      <div class="stat">
-        <span>${s.home}</span>
-        <span>${s.type}</span>
-        <span>${s.away}</span>
-      </div>
-    `).join("")}
+    <div style="margin-top:10px;">
+      ⏱ ${match.fixture.status.elapsed || 0}'
+    </div>
 
-    <h3>⚡ Eventos</h3>
+  </div>
+
+  <div style="padding:15px;">
+
+    <h3>📊 Estadísticas</h3>
+
+    ${
+      stats.length
+        ? stats.map(s => `
+          <div class="stat">
+            <span>${s.home}</span>
+            <span>${s.type}</span>
+            <span>${s.away}</span>
+          </div>
+        `).join("")
+        : "<p>No hay estadísticas disponibles</p>"
+    }
+
+    <h3 style="margin-top:20px;">⚡ Eventos</h3>
+
     ${events.map(e => `
-      <div>
+      <div style="margin:6px 0;">
         ${e.time.elapsed}' - ${e.team.name} - ${e.type}
       </div>
     `).join("")}
-  `;
 
-  document.getElementById("matchModal").style.display = "flex";
-}
+  </div>
+`;
 
 
 //CERRAR MODAL

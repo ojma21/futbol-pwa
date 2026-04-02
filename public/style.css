@@ -255,3 +255,45 @@ body {
 
   </div>
 </div>
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #0f172a;
+  display: none;
+  flex-direction: column;
+  z-index: 999;
+}
+
+.modal-content {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 15px;
+}
+
+.match-header-pro {
+  text-align: center;
+  padding: 20px 0;
+  border-bottom: 1px solid #1f2937;
+}
+
+.match-header-pro img {
+  width: 40px;
+}
+
+.score-big {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.close {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  font-size: 20px;
+}
