@@ -76,7 +76,7 @@ function renderMatches(data) {
 
     const isLive = match.fixture.status?.elapsed;
 
-    div.innerHTML = `
+    div.innerHTML = 
       <div class="league">
         ${match.league.name}
         ${isLive ? '<span style="color:red;margin-left:10px;">● EN VIVO</span>' : ''}
@@ -101,7 +101,7 @@ function renderMatches(data) {
       <div style="font-size:12px;opacity:.7;">
         ${isLive ? ⏱ ${match.fixture.status.elapsed}' : 'Programado'}
       </div>
-    `;
+    
 
     container.appendChild(div);
   });
