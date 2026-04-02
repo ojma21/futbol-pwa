@@ -304,6 +304,12 @@ async function openMatch(id) {
   </div>
 `;
 
+//
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("matchModal");
+  if (modal) modal.style.display = "none";
+});
+
 
 //CERRAR MODAL
 function closeModal() {
