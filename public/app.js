@@ -4,6 +4,69 @@ let currentFilter = "all";
 let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
 let notifiedEvents = {}; // para no repetir notificaciones
 
+//------------
+//NAVEGACION TIPO APP
+//------------
+function goTab(tab) {
+  document.querySelectorAll(".bottom-nav button").forEach(b => b.classList.remove("active"));
+  document.getElementById("tab_" + tab).classList.add("active");
+
+  const matches = document.getElementById("matches");
+  const leagues = document.getElementById("leagueContent");
+
+  if (tab === "home") {
+    matches.style.display = "block";
+    leagues.style.display = "none";
+  }
+
+  if (tab === "leagues") {
+    matches.style.display = "none";
+    leagues.style.display = "block";
+  }
+
+  if (tab === "favorites") {
+    showFavorites();
+  }
+
+  if (tab === "profile") {
+    alert("Perfil (próximo nivel)");
+  }
+}
+
+//-----------------
+//PANTALLA FAVORITOS REAL
+//-----------------
+function showFavorites() {
+  const container = document.getElementById("matches");
+
+  if (!favorites.length) {
+    container.innerHTML = "<p>No tienes favoritos</p>";
+    return;
+  }
+
+  container.innerHTML = "<h2>⭐ Favoritos</h2>";
+
+  favorites.forEach(id => {
+    container.innerHTML += `<div class="match-card">Partido ID: ${id}</div>`;
+  });
+
+  document.getElementById("leagueContent").style.display = "none";
+  container.style.display = "block";
+}
+
+//----------------
+//NOTIFICACIONES PRO 
+//----------------
+function showNotification(match) {
+  if (Notification.permission !== "granted") return;
+
+  new Notification("⚽ Gol!", {
+    body: `${match.teams.home.name} ${match.goals.home} - ${match.goals.away} ${match.teams.away.name}`,
+    icon: match.teams.home.logo
+  });
+}
+
+
 // ============================
 // FETCH
 // ============================
@@ -316,6 +379,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("userBox").style.display = "block";
     document.getElementById("loginBtn").style.display = "none";
   }
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/service-worker.js");
+}
 
   setInterval(loadMatches, 30000);
 });

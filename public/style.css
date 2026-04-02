@@ -683,3 +683,40 @@ html {
   50% { opacity: 1 }
   100% { opacity: .5 }
 }
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 60px;
+  background: #0a1a2f;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-top: 1px solid #1e2a3a;
+  z-index: 999;
+}
+
+.bottom-nav button {
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 20px;
+}
+
+.bottom-nav button.active {
+  color: #00ff87;
+}
+
+#appContent {
+  padding-bottom: 70px;
+}
+
+.match-card {
+  animation: fadeIn .3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px);}
+  to { opacity: 1; transform: translateY(0);}
+}
