@@ -1,46 +1,6 @@
-console.log("🔥 app.js cargado");
 const API = "/api";
 
 let currentFilter = "all";
-
-//
-// LOGIN
-//
-function toggleLogin() {
-  document.getElementById("authBox").classList.toggle("hidden");
-}
-
-
-
-function login() {
-  const email = document.getElementById("email").value;
-
-  if (!email) {
-    alert("Ingresa un correo");
-    return;
-  }
-
-  localStorage.setItem("user", email);
-
-  document.getElementById("userEmail").textContent = email;
-  document.getElementById("userBox").style.display = "block";
-  document.getElementById("loginBtn").style.display = "none";
-
-  toggleLogin();
-}
-
-function register() {
-  alert("Usuario creado (demo)");
-}
-
-function logout() {
-  localStorage.removeItem("user");
-
-  document.getElementById("userBox").style.display = "none";
-  document.getElementById("loginBtn").style.display = "block";
-}
-
-
 
 // ============================
 // FETCH
@@ -49,19 +9,28 @@ function logout() {
 async function fetchData(url) {
   try {
     const res = await fetch(API + url);
-
-    if (!res.ok) {
-      console.log("Error API:", url);
-      return [];
-    }
-
-    const data = await res.json();
-    return data;
-
-  } catch (err) {
-    console.log("ERROR FETCH:", err);
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (e) {
+    console.log("Error:", e);
     return [];
   }
+}
+
+// ============================
+// FILTROS
+// ============================
+
+function setFilter(filter) {
+  currentFilter = filter;
+
+  document.querySelectorAll(".filters button").forEach(btn => {
+    btn.classList.remove("active");
+  });
+
+  document.getElementById("f_" + filter).classList.add("active");
+
+  loadMatches();
 }
 
 // ============================
@@ -71,10 +40,12 @@ async function fetchData(url) {
 async function loadMatches() {
   const container = document.getElementById("matches");
 
-  // 🔥 NO BORRAR contenido mientras carga
-  if (!container.innerHTML) {
-    container.innerHTML = "<p>Cargando partidos...</p>";
-  }
+  // skeleton loading
+  container.innerHTML = `
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+    <div class="skeleton"></div>
+  `;
 
   let data = [];
 
@@ -97,61 +68,55 @@ function renderMatches(data) {
   const container = document.getElementById("matches");
 
   if (!data || !data.length) {
-  container.innerHTML = `
-    <div style="opacity:.7;padding:20px;">
-      ⚠️ No hay partidos en este momento
-    </div>
-  `;
-  return;
-}
+    container.innerHTML = `<p style="opacity:.6">No hay partidos disponibles</p>`;
+    return;
+  }
 
   container.innerHTML = "";
 
   data.forEach(match => {
+    if (!match.fixture) return;
 
-    // 🔒 PROTECCIÓN (muy importante)
-    if (!match.fixture || !match.teams) return;
+    const isLive = match.fixture.status?.elapsed;
 
     const div = document.createElement("div");
     div.className = "match-card";
 
     div.onclick = () => openMatch(match.fixture.id);
 
-    const isLive = match.fixture.status?.elapsed;
-
     div.innerHTML = `
-  <div class="league">
-    ${match.league.name}
-    ${isLive ? '<span style="color:red;margin-left:10px;">🔴 EN VIVO</span>' : ""}
-  </div>
+      <div class="league">
+        ${match.league.name}
+        ${isLive ? '<span style="color:red;"> ● EN VIVO</span>' : ''}
+      </div>
 
-  <div class="match-row">
-    <div class="team">
-      <img src="${match.teams.home.logo}" width="24">
-      <span>${match.teams.home.name}</span>
-    </div>
+      <div class="match-row">
+        <div class="team">
+          <img src="${match.teams.home.logo}" width="24">
+          <span>${match.teams.home.name}</span>
+        </div>
 
-    <div class="score">
-      ${match.goals.home ?? "-"} - ${match.goals.away ?? "-"}
-    </div>
+        <div class="score">
+          ${match.goals.home ?? "-"} - ${match.goals.away ?? "-"}
+        </div>
 
-    <div class="team">
-      <span>${match.teams.away.name}</span>
-      <img src="${match.teams.away.logo}" width="24">
-    </div>
-  </div>
+        <div class="team">
+          <span>${match.teams.away.name}</span>
+          <img src="${match.teams.away.logo}" width="24">
+        </div>
+      </div>
 
-  <div style="font-size:12px;opacity:.7;">
-    ${isLive ? `⏱ ${match.fixture.status.elapsed}'` : "Programado"}
-  </div>
-`;
+      <div style="font-size:12px;opacity:.7;">
+        ${isLive ? `⏱ ${match.fixture.status.elapsed}'` : "Programado"}
+      </div>
+    `;
 
     container.appendChild(div);
   });
 }
 
 // ============================
-// 🏆 LIGAS (NO SE TOCA LÓGICA)
+// LIGAS
 // ============================
 
 const leagues = [
@@ -162,46 +127,35 @@ const leagues = [
   { id: 61, name: "Ligue 1" }
 ];
 
-async function loadLeagues() {
-  console.log("🔥 loadLeagues ejecutado");
-
+function loadLeagues() {
   const tabs = document.getElementById("leagueTabs");
-  const content = document.getElementById("leagueContent");
-
-  console.log("tabs:", tabs);
-  console.log("content:", content);
-
-  if (!tabs || !content) {
-    console.log("❌ ERROR: no existe leagueTabs o leagueContent");
-    return;
-  }
 
   tabs.innerHTML = "";
 
-  leagues.forEach((l, index) => {
+  leagues.forEach((l, i) => {
     const btn = document.createElement("button");
     btn.textContent = l.name;
 
-    btn.onclick = () => loadStandings(l.id);
+    if (i === 0) btn.classList.add("active");
+
+    btn.onclick = () => {
+      document.querySelectorAll("#leagueTabs button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      loadStandings(l.id);
+    };
 
     tabs.appendChild(btn);
   });
-
-  console.log("🔥 botones creados");
 
   loadStandings(leagues[0].id);
 }
 
 async function loadStandings(leagueId) {
-  console.log("🔥 loadStandings:", leagueId);
-
   const container = document.getElementById("leagueContent");
 
   container.innerHTML = "Cargando...";
 
   const data = await fetchData(`/standings/${leagueId}`);
-
-  console.log("📊 DATA:", data);
 
   if (!data || !data.length) {
     container.innerHTML = "No hay datos";
@@ -209,21 +163,21 @@ async function loadStandings(leagueId) {
   }
 
   container.innerHTML = `
-  <div class="table">
-    ${data.map((team, i) => `
-      <div class="table-row">
-        <span class="pos">${i + 1}</span>
-        <img src="${team.team?.logo || ''}" width="20">
-        <span class="name">${team.team?.name || 'Equipo'}</span>
-        <span class="pts">${team.points || '-'}</span>
-      </div>
-    `).join("")}
-  </div>
-`;
-  }
+    <div class="table">
+      ${data.map((team, i) => `
+        <div class="table-row">
+          <span class="pos">${i + 1}</span>
+          <img src="${team.team?.logo || ''}" width="20">
+          <span class="name">${team.team?.name || ''}</span>
+          <span class="pts">${team.points || '-'}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
 
 // ============================
-// DETALLE (NO SE ROMPE)
+// DETALLE PARTIDO
 // ============================
 
 async function openMatch(id) {
@@ -237,7 +191,6 @@ async function openMatch(id) {
     `;
 
     document.getElementById("matchModal").style.display = "flex";
-
   } catch {
     alert("Error cargando partido");
   }
@@ -248,31 +201,53 @@ function closeModal() {
 }
 
 // ============================
-// FILTROS (NO TOCAR)
+// LOGIN (simple)
 // ============================
 
-function setFilter(f) {
-  currentFilter = f;
-  loadMatches();
+function toggleLogin() {
+  document.getElementById("authBox").classList.toggle("hidden");
 }
 
-// ============================
-// INIT (SIN CAMBIOS)
-// ============================
-const savedUser = localStorage.getItem("user");
+function login() {
+  const email = document.getElementById("email").value;
 
-if (savedUser) {
-  document.getElementById("userEmail").textContent = savedUser;
+  if (!email) return alert("Ingresa correo");
+
+  localStorage.setItem("user", email);
+
+  document.getElementById("userEmail").textContent = email;
   document.getElementById("userBox").style.display = "block";
   document.getElementById("loginBtn").style.display = "none";
+
+  toggleLogin();
 }
 
+function register() {
+  alert("Usuario creado (demo)");
+}
+
+function logout() {
+  localStorage.removeItem("user");
+
+  document.getElementById("userBox").style.display = "none";
+  document.getElementById("loginBtn").style.display = "block";
+}
+
+// ============================
+// INIT
+// ============================
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("🔥 INIT");
   loadMatches();
   loadLeagues();
 
+  const user = localStorage.getItem("user");
 
-setInterval(loadMatches, 30000);
+  if (user) {
+    document.getElementById("userEmail").textContent = user;
+    document.getElementById("userBox").style.display = "block";
+    document.getElementById("loginBtn").style.display = "none";
+  }
+
+  setInterval(loadMatches, 30000);
 });
