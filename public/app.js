@@ -76,32 +76,32 @@ function renderMatches(data) {
 
     const isLive = match.fixture.status?.elapsed;
 
-    div.innerHTML = 
-      <div class="league">
-        ${match.league.name}
-        ${isLive ? '<span style="color:red;margin-left:10px;">● EN VIVO</span>' : ''}
-      </div>
+    div.innerHTML = `
+  <div class="league">
+    ${match.league.name}
+    ${isLive ? '<span style="color:red;margin-left:10px;">🔴 EN VIVO</span>' : ""}
+  </div>
 
-      <div class="match-row">
-        <div class="team">
-          <img src="${match.teams.home.logo}" width="24">
-          <span>${match.teams.home.name}</span>
-        </div>
+  <div class="match-row">
+    <div class="team">
+      <img src="${match.teams.home.logo}" width="24">
+      <span>${match.teams.home.name}</span>
+    </div>
 
-        <div class="score">
-          ${match.goals.home ?? "-"} - ${match.goals.away ?? "-"}
-        </div>
+    <div class="score">
+      ${match.goals.home ?? "-"} - ${match.goals.away ?? "-"}
+    </div>
 
-        <div class="team">
-          <span>${match.teams.away.name}</span>
-          <img src="${match.teams.away.logo}" width="24">
-        </div>
-      </div>
+    <div class="team">
+      <span>${match.teams.away.name}</span>
+      <img src="${match.teams.away.logo}" width="24">
+    </div>
+  </div>
 
-      <div style="font-size:12px;opacity:.7;">
-        ${isLive ? ⏱ ${match.fixture.status.elapsed}' : 'Programado'}
-      </div>
-    
+  <div style="font-size:12px;opacity:.7;">
+    ${isLive ? `⏱ ${match.fixture.status.elapsed}'` : "Programado"}
+  </div>
+`;
 
     container.appendChild(div);
   });
