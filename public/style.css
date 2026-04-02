@@ -425,3 +425,29 @@ body {
   cursor: pointer;
   z-index: 10;
 }
+
+.team-info img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.team-info img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.team-row span:first-child {
+  color: #9ca3af;
+  width: 20px;
+}
+
+.team-row {
+  transition: 0.2s;
+}
+
+.team-row:hover {
+  background: #374151;
+  border-radius: 6px;
+}

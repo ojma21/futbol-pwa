@@ -58,7 +58,7 @@ async function loadLeague(leagueId) {
 
     container.innerHTML = `
       <div class="league-card">
-        ${data.slice(0,10).map((t,i)=>{
+        ${data.map((t,i)=>{
 
           const logo = t.team.logo || t.team.crest || "https://via.placeholder.com/20";
 
