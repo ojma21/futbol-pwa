@@ -62,15 +62,25 @@ async function loadLeague(leagueId) {
 
           const logo = t.team.logo || t.team.crest || "https://via.placeholder.com/20";
 
+          let classRow = "";
+          if (i < 4) classRow = "ucl";
+          else if (i < 6) classRow = "uel";
+          else if (i >= data.length - 3) classRow = "desc";
+
           return `
-            <div class="team-row">
+            <div class="team-row ${classRow}">
+              
+              <div class="pos">${i+1}</div>
+
               <div class="team-info">
-                <span>${i+1}</span>
                 <img src="${logo}">
                 <span>${t.team.name}</span>
               </div>
 
-              <div>${t.points} pts</div>
+              <div class="points">
+                ${t.points}
+              </div>
+
             </div>
           `;
         }).join("")}
@@ -108,7 +118,6 @@ async function register() {
 async function login() {
   const email = emailInput();
   const password = passwordInput();
-
   const msg = document.getElementById("msg");
 
   if (!email || !password) {

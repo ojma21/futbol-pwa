@@ -451,3 +451,74 @@ body {
   background: #374151;
   border-radius: 6px;
 }
+
+/* FILAS */
+.team-row {
+  display: grid;
+  grid-template-columns: 30px 1fr 40px;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #374151;
+  font-size: 14px;
+  position: relative;
+}
+
+/* POSICIÓN */
+.pos {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+/* EQUIPO */
+.team-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.team-info img {
+  width: 18px;
+  height: 18px;
+}
+
+/* PUNTOS */
+.points {
+  text-align: right;
+  font-weight: bold;
+}
+
+/* 🎯 COLORES POR ZONA */
+.team-row.ucl {
+  border-left: 3px solid #22c55e;
+}
+
+.team-row.uel {
+  border-left: 3px solid #3b82f6;
+}
+
+.team-row.desc {
+  border-left: 3px solid #ef4444;
+}
+
+/* HOVER PRO */
+.team-row:hover {
+  background: #374151;
+}
+
+/* CARD */
+.league-card {
+  margin: 10px;
+  background: #1f2937;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.separator {
+  font-size: 11px;
+  padding: 5px 10px;
+  color: #3b82f6;
+}
+
+.separator.red {
+  color: #ef4444;
+}
