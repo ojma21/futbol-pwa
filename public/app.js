@@ -77,6 +77,10 @@ function logout() {
   location.reload();
 }
 
+function toggleLogin() {
+  document.getElementById("authBox").classList.toggle("hidden");
+}
+
 // ============================
 // SESIÓN / UI
 // ============================
@@ -215,6 +219,100 @@ async function loadLiveMatches() {
     container.appendChild(div);
   });
 }
+
+
+let currentFilter = "all";
+
+//
+function setFilter(filter) {
+  currentFilter = filter;
+
+  document.querySelectorAll(".filters button")
+    .forEach(b => b.classList.remove("active"));
+
+  document.getElementById("f_" + filter).classList.add("active");
+
+  loadMatches();
+}
+
+
+//UNIFICAR PARTIDOS
+async function loadMatches() {
+  const container = document.getElementById("matches");
+  container.innerHTML = "Cargando...";
+
+  try {
+    let data = [];
+
+    if (currentFilter === "live") {
+      const res = await fetch("/api/live-matches");
+      data = await res.json();
+    }
+
+    else if (currentFilter === "today") {
+      const res = await fetch("/api/today");
+      data = await res.json();
+    }
+
+    else {
+      const [liveRes, todayRes] = await Promise.all([
+        fetch("/api/live-matches"),
+        fetch("/api/today")
+      ]);
+
+      const live = await liveRes.json();
+      const today = await todayRes.json();
+
+      data = [...live, ...today];
+    }
+
+    renderMatches(data);
+
+  } catch {
+    container.innerHTML = "Error cargando partidos";
+  }
+}
+
+
+//RENDER ESTILO APP REAL
+function renderMatches(data) {
+  const container = document.getElementById("matches");
+  container.innerHTML = "";
+
+  data.forEach(match => {
+    const div = document.createElement("div");
+    div.className = "match-card";
+
+    div.onclick = () => openMatch(match.fixture.id);
+
+    div.innerHTML = `
+      <div class="league">${match.league.name}</div>
+
+      <div class="match-row">
+        <div class="team">
+          <img src="${match.teams.home.logo}">
+          <span>${match.teams.home.name}</span>
+        </div>
+
+        <div class="score">
+          ${match.goals.home ?? "-"} - ${match.goals.away ?? "-"}
+        </div>
+
+        <div class="team" style="justify-content:end;">
+          <span>${match.teams.away.name}</span>
+          <img src="${match.teams.away.logo}">
+        </div>
+      </div>
+
+      <div class="status">
+        ${match.fixture.status?.elapsed ? "⏱ " + match.fixture.status.elapsed + "'" : "Programado"}
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
 
 // ============================
 // DETALLE DE PARTIDO (MODAL)
@@ -357,6 +455,11 @@ async function loadStandings() {
 // ============================
 // INIT
 // ============================
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadMatches();
+  setInterval(loadMatches, 30000);
+});
 
 document.addEventListener("DOMContentLoaded", () => {
   showUser();

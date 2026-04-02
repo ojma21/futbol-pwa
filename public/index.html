@@ -11,11 +11,24 @@
 
 <header class="header">
   <h1>⚽ FutbolApp</h1>
-  <div id="userBox" style="display:none;">
+
+  <div id="userBox">
     <span id="userEmail"></span>
     <button onclick="logout()">Salir</button>
   </div>
+
+  <button id="loginBtn" onclick="toggleLogin()">Login</button>
 </header>
+
+<div id="authBox" class="auth-modal hidden">
+  <div class="auth-container">
+    <h2>Bienvenido 👋</h2>
+    <input id="email" placeholder="Correo">
+    <input id="password" type="password" placeholder="Contraseña">
+    <button onclick="login()">Entrar</button>
+    <button onclick="register()">Crear cuenta</button>
+  </div>
+</div>
 
 <!-- LOGIN -->
 <div id="authBox" class="auth-container">
@@ -28,46 +41,17 @@
 </div>
 
 <!-- APP -->
-<main id="appContent" style="display:none;">
+<main id="appContent">
 
-  <nav class="tabs">
-    <button onclick="showTab('live')">En vivo</button>
-    <button onclick="showTab('today')">Hoy</button>
-    <button onclick="showTab('table')">Tabla</button>
-    <button onclick="showTab('fav')">⭐</button>
-  </nav>
+  <!-- FILTROS -->
+  <div class="filters">
+    <button onclick="setFilter('all')" id="f_all" class="active">ALL</button>
+    <button onclick="setFilter('live')" id="f_live">LIVE NOW</button>
+    <button onclick="setFilter('today')" id="f_today">TODAY</button>
+  </div>
 
-  <section id="live" class="tab active">
-    <div id="liveMatches"></div>
-  </section>
-
-  <section id="today" class="tab">
-    <div id="todayMatches"></div>
-  </section>
-
-  <section id="table" class="tab">
-    <select id="leagueSelect" onchange="loadStandings()">
-      <option value="140">La Liga</option>
-      <option value="39">Premier League</option>
-    </select>
-
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Equipo</th>
-          <th>Pts</th>
-          <th>GF</th>
-          <th>GC</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody"></tbody>
-    </table>
-  </section>
-
-  <section id="fav" class="tab">
-    <h2>Favoritos</h2>
-    <div id="favorites"></div>
-  </section>
+  <!-- PARTIDOS -->
+  <section id="matches"></section>
 
 </main>
 
