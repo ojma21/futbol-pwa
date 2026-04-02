@@ -2,6 +2,64 @@
 // CONFIG
 // ============================
 const API = "/api";
+const leaguesConfig = [
+  { name: "España", code: "PD" },
+  { name: "Inglaterra", code: "PL" },
+  { name: "Italia", code: "SA" },
+  { name: "Alemania", code: "BL1" },
+  { name: "Francia", code: "FL1" },
+  { name: "Argentina", code: "LPF" },
+  { name: "México", code: "MX" }
+];
+
+//
+// CARGAR TABLAS
+//
+async function loadLeagues() {
+  const container = document.getElementById("leagues");
+  container.innerHTML = "";
+
+  for (let league of leaguesConfig) {
+    try {
+      const res = await fetch(`/api/standings/${league.code}`);
+      const data = await res.json();
+
+      const div = document.createElement("div");
+      div.className = "league-table";
+
+      div.innerHTML = `
+        <h3>${league.name}</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Equipo</th>
+              <th>Pts</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.slice(0,5).map((t,i)=>`
+              <tr>
+                <td>${i+1}</td>
+                <td>
+                  <img src="${t.team.crest}" width="18">
+                  ${t.team.name}
+                </td>
+                <td>${t.points}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+
+      container.appendChild(div);
+
+    } catch (e) {
+      console.log("Error liga:", league.name);
+    }
+  }
+}
+
 
 // ============================
 // AUTH (LOGIN / REGISTER)
@@ -452,20 +510,31 @@ async function loadStandings() {
   });
 }
 
+//LOGICA DE SESIONES
+function updateAuthUI() {
+  const email = localStorage.getItem("email");
+
+  const userBox = document.getElementById("userBox");
+  const loginBtn = document.getElementById("loginBtn");
+
+  if (email) {
+    userBox.style.display = "flex";
+    loginBtn.style.display = "none";
+    document.getElementById("userEmail").textContent = email;
+  } else {
+    userBox.style.display = "none";
+    loginBtn.style.display = "block";
+  }
+}
+
 // ============================
 // INIT
 // ============================
 
 document.addEventListener("DOMContentLoaded", () => {
-  loadMatches(); // 👈 SIEMPRE carga partidos
-
-  const email = localStorage.getItem("email");
-
-  if (email) {
-    document.getElementById("userBox").style.display = "flex";
-    document.getElementById("userEmail").textContent = email;
-    document.getElementById("loginBtn").style.display = "none";
-  }
+  loadMatches();
+  updateAuthUI();
+  loadLeagues();
 
   setInterval(loadMatches, 30000);
 });
