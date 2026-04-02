@@ -14,6 +14,14 @@ const leaguesConfig = [
 ];
 
 // ============================
+// ESTADO GLOBAL
+// ============================
+
+let currentFilter = "all";
+let lastScores = {};
+let favoriteTeams = [];
+
+// ============================
 // LIGAS (TABS)
 // ============================
 
@@ -45,7 +53,6 @@ function loadLeagueTabs() {
 async function loadLeague(leagueId) {
   const container = document.getElementById("leagueContent");
 
-  // 🔥 Skeleton loading
   container.innerHTML = `
     ${Array(8).fill('<div class="skeleton"></div>').join('')}
   `;
@@ -72,7 +79,6 @@ async function loadLeague(leagueId) {
 
           return `
             <div class="team-row ${classRow}">
-              
               <div class="pos">${i+1}</div>
 
               <div class="team-info">
@@ -81,7 +87,6 @@ async function loadLeague(leagueId) {
               </div>
 
               <div class="points">${t.points}</div>
-
             </div>
           `;
         }).join("")}
@@ -90,6 +95,32 @@ async function loadLeague(leagueId) {
 
   } catch {
     container.innerHTML = "Error cargando liga";
+  }
+}
+
+// ============================
+// FAVORITOS (CLAVE 🔥)
+// ============================
+
+async function loadFavorites() {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    favoriteTeams = [];
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/favorites`, {
+      headers: { "Authorization": token }
+    });
+
+    const data = await res.json();
+
+    favoriteTeams = data.map(f => f.team_name.toLowerCase());
+
+  } catch {
+    favoriteTeams = [];
   }
 }
 
@@ -122,6 +153,8 @@ async function login() {
 
   localStorage.setItem("token", data.token);
   localStorage.setItem("email", email);
+
+  await loadFavorites(); // 🔥 IMPORTANTE
 
   toggleLogin();
   updateAuthUI();
@@ -172,10 +205,8 @@ function updateAuthUI() {
 }
 
 // ============================
-// PARTIDOS
+// FILTROS + PARTIDOS
 // ============================
-
-let currentFilter = "all";
 
 function setFilter(filter) {
   currentFilter = filter;
@@ -207,6 +238,27 @@ async function loadMatches() {
       data = [...live, ...today];
     }
 
+    // 🔥 DETECCIÓN DE GOLES SOLO FAVORITOS
+    data.forEach(match => {
+      const id = match.fixture.id;
+      const score = `${match.goals.home}-${match.goals.away}`;
+
+      if (lastScores[id] && lastScores[id] !== score) {
+
+        const home = match.teams.home.name.toLowerCase();
+        const away = match.teams.away.name.toLowerCase();
+
+        if (
+          favoriteTeams.includes(home) ||
+          favoriteTeams.includes(away)
+        ) {
+          showGoalNotification(match);
+        }
+      }
+
+      lastScores[id] = score;
+    });
+
     renderMatches(data);
 
   } catch {
@@ -218,6 +270,10 @@ async function fetchData(url) {
   const res = await fetch(`${API}${url}`);
   return res.json();
 }
+
+// ============================
+// RENDER PARTIDOS
+// ============================
 
 function renderMatches(data) {
   const container = document.getElementById("matches");
@@ -260,6 +316,22 @@ function renderMatches(data) {
 }
 
 // ============================
+// 🔔 NOTIFICACIÓN
+// ============================
+
+function showGoalNotification(match) {
+  const notif = document.createElement("div");
+  notif.className = "goal-notification";
+
+  notif.innerText = `⚽ GOL!
+${match.teams.home.name} ${match.goals.home} - ${match.goals.away} ${match.teams.away.name}`;
+
+  document.body.appendChild(notif);
+
+  setTimeout(() => notif.remove(), 4000);
+}
+
+// ============================
 // MODAL PARTIDO
 // ============================
 
@@ -270,10 +342,14 @@ async function openMatch(id) {
   document.getElementById("matchDetail").innerHTML = `
     <div class="match-header-pro">
       <div>${data.fixture.league.name}</div>
+
       <div class="score-big">
         ${data.fixture.goals.home} - ${data.fixture.goals.away}
       </div>
-      <div>${data.teams.home.name} vs ${data.teams.away.name}</div>
+
+      <div>
+        ${data.teams.home.name} vs ${data.teams.away.name}
+      </div>
     </div>
   `;
 
@@ -288,10 +364,13 @@ function closeModal() {
 // INIT
 // ============================
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   updateAuthUI();
+
+  await loadFavorites(); // 🔥 CLAVE
+
   loadMatches();
   loadLeagueTabs();
 
-  setInterval(loadMatches, 30000);
+  setInterval(loadMatches, 15000);
 });
