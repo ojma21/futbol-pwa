@@ -1,6 +1,8 @@
 const API = "/api";
 
 let currentFilter = "all";
+let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+let notifiedEvents = {}; // para no repetir notificaciones
 
 // ============================
 // FETCH
@@ -28,9 +30,29 @@ function setFilter(filter) {
     btn.classList.remove("active");
   });
 
-  document.getElementById("f_" + filter).classList.add("active");
+  const el = document.getElementById("f_" + filter);
+  if (el) el.classList.add("active");
 
   loadMatches();
+}
+
+// ============================
+// FAVORITOS
+// ============================
+
+function toggleFavorite(matchId) {
+  if (favorites.includes(matchId)) {
+    favorites = favorites.filter(id => id !== matchId);
+  } else {
+    favorites.push(matchId);
+  }
+
+  localStorage.setItem("favorites", JSON.stringify(favorites));
+  loadMatches();
+}
+
+function isFavorite(matchId) {
+  return favorites.includes(matchId);
 }
 
 // ============================
@@ -40,7 +62,7 @@ function setFilter(filter) {
 async function loadMatches() {
   const container = document.getElementById("matches");
 
-  // skeleton loading
+  // skeleton
   container.innerHTML = `
     <div class="skeleton"></div>
     <div class="skeleton"></div>
@@ -62,6 +84,7 @@ async function loadMatches() {
   }
 
   renderMatches(data);
+  checkNotifications(data);
 }
 
 function renderMatches(data) {
@@ -78,19 +101,21 @@ function renderMatches(data) {
     if (!match.fixture) return;
 
     const isLive = match.fixture.status?.elapsed;
+    const fav = isFavorite(match.fixture.id);
 
     const div = document.createElement("div");
     div.className = "match-card";
 
-    div.onclick = () => openMatch(match.fixture.id);
-
     div.innerHTML = `
       <div class="league">
         ${match.league.name}
-        ${isLive ? '<span style="color:red;"> ● EN VIVO</span>' : ''}
+        ${isLive ? '<span class="live">● EN VIVO</span>' : ''}
+        <span class="fav" onclick="event.stopPropagation(); toggleFavorite(${match.fixture.id})">
+          ${fav ? "⭐" : "☆"}
+        </span>
       </div>
 
-      <div class="match-row">
+      <div class="match-row" onclick="openMatch(${match.fixture.id})">
         <div class="team">
           <img src="${match.teams.home.logo}" width="24">
           <span>${match.teams.home.name}</span>
@@ -106,13 +131,54 @@ function renderMatches(data) {
         </div>
       </div>
 
-      <div style="font-size:12px;opacity:.7;">
+      <div class="time">
         ${isLive ? `⏱ ${match.fixture.status.elapsed}'` : "Programado"}
       </div>
     `;
 
     container.appendChild(div);
   });
+}
+
+// ============================
+// NOTIFICACIONES (favoritos)
+// ============================
+
+function checkNotifications(matches) {
+  matches.forEach(match => {
+    if (!match.fixture) return;
+
+    const id = match.fixture.id;
+    const isFav = favorites.includes(id);
+    const goals = `${match.goals.home}-${match.goals.away}`;
+
+    if (!isFav) return;
+
+    if (!notifiedEvents[id]) {
+      notifiedEvents[id] = goals;
+      return;
+    }
+
+    if (notifiedEvents[id] !== goals) {
+      showNotification(match);
+      notifiedEvents[id] = goals;
+    }
+  });
+}
+
+function showNotification(match) {
+  if (!("Notification" in window)) return;
+
+  if (Notification.permission === "granted") {
+    new Notification("⚽ Gol en favorito", {
+      body: `${match.teams.home.name} ${match.goals.home} - ${match.goals.away} ${match.teams.away.name}`
+    });
+  }
+}
+
+// pedir permiso una vez
+if ("Notification" in window && Notification.permission !== "granted") {
+  Notification.requestPermission();
 }
 
 // ============================
@@ -129,7 +195,6 @@ const leagues = [
 
 function loadLeagues() {
   const tabs = document.getElementById("leagueTabs");
-
   tabs.innerHTML = "";
 
   leagues.forEach((l, i) => {
@@ -153,7 +218,7 @@ function loadLeagues() {
 async function loadStandings(leagueId) {
   const container = document.getElementById("leagueContent");
 
-  container.innerHTML = "Cargando...";
+  container.innerHTML = "Cargando tabla...";
 
   const data = await fetchData(`/standings/${leagueId}`);
 
@@ -166,10 +231,10 @@ async function loadStandings(leagueId) {
     <div class="table">
       ${data.map((team, i) => `
         <div class="table-row">
-          <span class="pos">${i + 1}</span>
-          <img src="${team.team?.logo || ''}" width="20">
-          <span class="name">${team.team?.name || ''}</span>
-          <span class="pts">${team.points || '-'}</span>
+          <span>${i + 1}</span>
+          <img src="${team.team?.logo}" width="20">
+          <span>${team.team?.name}</span>
+          <span>${team.points}</span>
         </div>
       `).join("")}
     </div>
@@ -177,7 +242,7 @@ async function loadStandings(leagueId) {
 }
 
 // ============================
-// DETALLE PARTIDO
+// DETALLE PARTIDO (PRO)
 // ============================
 
 async function openMatch(id) {
@@ -186,8 +251,11 @@ async function openMatch(id) {
     const data = await res.json();
 
     document.getElementById("matchDetail").innerHTML = `
-      <h2>${data.teams.home.name} vs ${data.teams.away.name}</h2>
-      <h1>${data.goals.home} - ${data.goals.away}</h1>
+      <div class="match-detail">
+        <h2>${data.teams.home.name} vs ${data.teams.away.name}</h2>
+        <h1>${data.goals.home} - ${data.goals.away}</h1>
+        <p>${data.fixture?.status?.elapsed || 0}'</p>
+      </div>
     `;
 
     document.getElementById("matchModal").style.display = "flex";
@@ -201,7 +269,7 @@ function closeModal() {
 }
 
 // ============================
-// LOGIN (simple)
+// LOGIN
 // ============================
 
 function toggleLogin() {
