@@ -1,11 +1,16 @@
+// ============================
+// CONFIG
+// ============================
 const API = "/api";
 
-//REGISTRO
+// ============================
+// AUTH (LOGIN / REGISTER)
+// ============================
+
 async function register() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
 
-  // 🔴 VALIDACIÓN
   if (!email || !password) {
     alert("Completa todos los campos");
     return;
@@ -32,12 +37,11 @@ async function register() {
 
     alert("Usuario creado ✅");
 
-  } catch (err) {
+  } catch {
     alert("Error de conexión");
   }
 }
 
-//LOGIN
 async function login() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
@@ -61,14 +65,22 @@ async function login() {
     return;
   }
 
-  // 🔥 GUARDAR SESIÓN
   localStorage.setItem("token", data.token);
   localStorage.setItem("email", email);
 
   showUser();
 }
 
-//MOSTRAR USUARIO
+function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("email");
+  location.reload();
+}
+
+// ============================
+// SESIÓN / UI
+// ============================
+
 function showUser() {
   const email = localStorage.getItem("email");
 
@@ -77,44 +89,33 @@ function showUser() {
   const userBox = document.getElementById("userBox");
 
   if (email) {
-    // ✅ USUARIO LOGUEADO
     authBox.style.display = "none";
     appContent.style.display = "block";
     userBox.style.display = "flex";
 
     document.getElementById("userEmail").textContent = email;
 
-    // 🔥 cargar datos
     loadLiveMatches();
     loadTodayMatches();
     loadStandings();
     loadFavorites();
 
   } else {
-    // ❌ NO LOGUEADO
     authBox.style.display = "block";
     appContent.style.display = "none";
     userBox.style.display = "none";
   }
 }
 
-//LOGOUT
-function logout() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("email");
-
-  location.reload();
-}
-
-
-//NAVEGACION TIPO APP
 function showTab(tab) {
   document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
   document.getElementById(tab).classList.add("active");
 }
 
+// ============================
+// FAVORITOS
+// ============================
 
-//GUARDAR FAV
 async function addFavorite(name, logo) {
   const token = localStorage.getItem("token");
 
@@ -130,18 +131,14 @@ async function addFavorite(name, logo) {
     })
   });
 
-  alert("Agregado a favoritos ⭐");
   loadFavorites();
 }
 
-//CARGAR FAV
 async function loadFavorites() {
   const token = localStorage.getItem("token");
 
   const res = await fetch(`${API}/favorites`, {
-    headers: {
-      "Authorization": token
-    }
+    headers: { "Authorization": token }
   });
 
   const data = await res.json();
@@ -162,39 +159,21 @@ async function loadFavorites() {
   });
 }
 
-
-//ELIMINAR FAV
 async function deleteFavorite(id) {
   const token = localStorage.getItem("token");
 
   await fetch(`${API}/favorites/${id}`, {
     method: "DELETE",
-    headers: {
-      "Authorization": token
-    }
+    headers: { "Authorization": token }
   });
 
   loadFavorites();
 }
 
+// ============================
+// PARTIDOS EN VIVO
+// ============================
 
-// 📌 PARTIDOS GUARDADOS
-async function loadMatches() {
-  const res = await fetch(`${API}/matches`);
-  const data = await res.json();
-
-  const container = document.getElementById("matches");
-  container.innerHTML = "";
-
-  data.forEach(m => {
-    const div = document.createElement("div");
-    div.className = "match";
-    div.textContent = `${m.teamA} ${m.scoreA} - ${m.scoreB} ${m.teamB}`;
-    container.appendChild(div);
-  });
-}
-
-// 📡 PARTIDOS EN VIVO (CON LOGOS)
 async function loadLiveMatches() {
   const res = await fetch(`${API}/live-matches`);
   const data = await res.json();
@@ -205,6 +184,7 @@ async function loadLiveMatches() {
   data.forEach(match => {
     const div = document.createElement("div");
     div.className = "match-card";
+
     div.onclick = () => openMatch(match.fixture.id);
 
     div.innerHTML = `
@@ -236,7 +216,10 @@ async function loadLiveMatches() {
   });
 }
 
-//FUNCION PRINCIPAL DETALLE
+// ============================
+// DETALLE DE PARTIDO (MODAL)
+// ============================
+
 async function openMatch(id) {
   const res = await fetch(`${API}/match/${id}`);
   const data = await res.json();
@@ -249,202 +232,102 @@ async function openMatch(id) {
   const container = document.getElementById("matchDetail");
 
   container.innerHTML = `
-  <div class="match-header-pro">
+    <div class="match-header-pro">
+      <div>${match.league.name}</div>
 
-    <div>${match.league.name}</div>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <img src="${teams.home.logo}">
+          <div>${teams.home.name}</div>
+        </div>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-      
-      <div>
-        <img src="${teams.home.logo}">
-        <div>${teams.home.name}</div>
+        <div class="score-big">
+          ${match.goals.home} - ${match.goals.away}
+        </div>
+
+        <div>
+          <img src="${teams.away.logo}">
+          <div>${teams.away.name}</div>
+        </div>
       </div>
 
-      <div class="score-big">
-        ${match.goals.home} - ${match.goals.away}
-      </div>
-
-      <div>
-        <img src="${teams.away.logo}">
-        <div>${teams.away.name}</div>
-      </div>
-
+      <div>⏱ ${match.fixture.status.elapsed || 0}'</div>
     </div>
 
-    <div style="margin-top:10px;">
-      ⏱ ${match.fixture.status.elapsed || 0}'
-    </div>
+    <div style="padding:15px;">
+      <h3>📊 Estadísticas</h3>
 
-  </div>
-
-  <div style="padding:15px;">
-
-    <h3>📊 Estadísticas</h3>
-
-    ${
-      stats.length
-        ? stats.map(s => `
-          <div class="stat">
-            <span>${s.home}</span>
-            <span>${s.type}</span>
-            <span>${s.away}</span>
-          </div>
-        `).join("")
-        : "<p>No hay estadísticas disponibles</p>"
-    }
-
-    <h3 style="margin-top:20px;">⚡ Eventos</h3>
-
-    ${events.map(e => `
-      <div style="margin:6px 0;">
-        ${e.time.elapsed}' - ${e.team.name} - ${e.type}
-      </div>
-    `).join("")}
-
-  </div>
-`;
-
-//
-document.addEventListener("DOMContentLoaded", () => {
-  const modal = document.getElementById("matchModal");
-  if (modal) modal.style.display = "none";
-});
-
-
-//CERRAR MODAL
-function closeModal() {
-  document.getElementById("matchModal").style.display = "none";
-}
-
-
-//ABRIR DETALLE
-async function openMatch(id) {
-  try {
-    const res = await fetch(`${API}/match/${id}`);
-    const match = await res.json();
-
-    const statsHTML = await loadMatchStats(id);
-
-    const container = document.getElementById("matchDetail");
-
-    container.innerHTML = `
-      <h3>${match.teams.home.name} vs ${match.teams.away.name}</h3>
-
-      <p><strong>${match.goals.home} - ${match.goals.away}</strong></p>
-      <p>⏱️ ${match.fixture.status.elapsed}'</p>
-
-      ${statsHTML}
-
-      <h4>Eventos:</h4>
       ${
-        match.events.map(e => `
-          <p>
-            ${e.time.elapsed}' 
-            ${e.team.name} 
-            - ${e.type}
-          </p>
-        `).join("")
+        stats.length
+          ? stats.map(s => `
+            <div class="stat">
+              <span>${s.home}</span>
+              <span>${s.type}</span>
+              <span>${s.away}</span>
+            </div>
+          `).join("")
+          : "<p>No hay estadísticas disponibles</p>"
       }
-    `;
 
-    document.getElementById("matchModal").style.display = "block";
+      <h3>⚡ Eventos</h3>
 
-  } catch (err) {
-    console.error("ERROR DETALLE:", err);
-  }
+      ${events.map(e => `
+        <div>
+          ${e.time.elapsed}' - ${e.team.name} - ${e.type}
+        </div>
+      `).join("")}
+    </div>
+  `;
+
+  document.getElementById("matchModal").style.display = "flex";
 }
 
 function closeModal() {
   document.getElementById("matchModal").style.display = "none";
 }
 
-//ESTADISTICAS
-async function loadMatchStats(id) {
-  try {
-    const res = await fetch(`${API}/match-stats/${id}`);
-    const data = await res.json();
+// ============================
+// PARTIDOS DEL DÍA
+// ============================
 
-    if (!data || data.length < 2) {
-      return "<p>No hay estadísticas disponibles</p>";
-    }
-
-    const home = data[0];
-    const away = data[1];
-
-    // 🔎 Helper para buscar stat
-    function getStat(team, name) {
-      const stat = team.statistics.find(s => s.type === name);
-      return stat ? stat.value : 0;
-    }
-
-    return `
-      <h4>📊 Estadísticas</h4>
-
-      <p>Posesión: ${getStat(home, "Ball Possession")} - ${getStat(away, "Ball Possession")}</p>
-      <p>Tiros: ${getStat(home, "Total Shots")} - ${getStat(away, "Total Shots")}</p>
-      <p>Tiros al arco: ${getStat(home, "Shots on Goal")} - ${getStat(away, "Shots on Goal")}</p>
-      <p>Faltas: ${getStat(home, "Fouls")} - ${getStat(away, "Fouls")}</p>
-      <p>Corners: ${getStat(home, "Corner Kicks")} - ${getStat(away, "Corner Kicks")}</p>
-    `;
-
-  } catch (err) {
-    console.error("ERROR STATS:", err);
-    return "<p>Error cargando estadísticas</p>";
-  }
-}
-
-
-
-// 📡 PARTIDOS DEL DIA (CON LOGOS)
 async function loadTodayMatches() {
-  try {
-    const res = await fetch(`${API}/today`);
-    const data = await res.json();
+  const res = await fetch(`${API}/today`);
+  const data = await res.json();
 
-    const selectedLeague = document.getElementById("liveLeague").value;
+  const container = document.getElementById("todayMatches");
+  container.innerHTML = "";
 
-    const container = document.getElementById("today");
-    container.innerHTML = "";
+  data.forEach(match => {
+    const div = document.createElement("div");
+    div.className = "match-card";
 
-    data.forEach(match => {
-
-      if (selectedLeague !== "all" && match.league.id != selectedLeague) {
-        return;
-      }
-
-      const div = document.createElement("div");
-      div.className = "match-card";
-
-      const time = new Date(match.fixture.date).toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-
-      div.innerHTML = `
-        <div class="team">
-          <img src="${match.teams.home.logo}" />
-          <span>${match.teams.home.name}</span>
-        </div>
-
-        <div class="score">${time}</div>
-
-        <div class="team">
-          <img src="${match.teams.away.logo}" />
-          <span>${match.teams.away.name}</span>
-        </div>
-      `;
-
-      container.appendChild(div);
+    const time = new Date(match.fixture.date).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit'
     });
 
-  } catch (err) {
-    console.error("ERROR TODAY:", err);
-  }
+    div.innerHTML = `
+      <div class="team">
+        <img src="${match.teams.home.logo}">
+        ${match.teams.home.name}
+      </div>
+
+      <div class="score">${time}</div>
+
+      <div class="team">
+        <img src="${match.teams.away.logo}">
+        ${match.teams.away.name}
+      </div>
+    `;
+
+    container.appendChild(div);
+  });
 }
 
+// ============================
+// TABLA DE POSICIONES
+// ============================
 
-
-// 🏆 TABLA REAL
 async function loadStandings() {
   const league = document.getElementById("leagueSelect").value;
 
@@ -453,11 +336,6 @@ async function loadStandings() {
 
   const table = document.getElementById("tableBody");
   table.innerHTML = "";
-
-  if (!data || data.length === 0) {
-    table.innerHTML = "<tr><td>No hay datos</td></tr>";
-    return;
-  }
 
   data.forEach(team => {
     const row = document.createElement("tr");
@@ -476,25 +354,11 @@ async function loadStandings() {
   });
 }
 
+// ============================
+// INIT
+// ============================
 
-// 🔮 PREDICCIÓN SIMPLE
-async function predict() {
-  const teamA = document.getElementById("pTeamA").value;
-  const teamB = document.getElementById("pTeamB").value;
-
-  const res = await fetch(`${API}/predict/${teamA}/${teamB}`);
-  const data = await res.json();
-
-  document.getElementById("result").textContent = data.prediction;
-}
-
-// 🚀 INICIO
-//loadMatches();
-loadLiveMatches();
-loadStandings();
-loadTodayMatches();
-loadFavorites();
-showUser();
-
-// 🔄 ACTUALIZACIÓN EN VIVO
-setInterval(loadLiveMatches, 30000);
+document.addEventListener("DOMContentLoaded", () => {
+  showUser();
+  setInterval(loadLiveMatches, 30000);
+});
