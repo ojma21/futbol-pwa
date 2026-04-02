@@ -208,7 +208,7 @@ async function loadLiveMatches() {
 
       <div class="match-row">
         <span class="status">⏱ ${match.fixture.status.elapsed || 0}'</span>
-        <button onclick="addFavorite('${match.teams.home.name}','${match.teams.home.logo}')">⭐</button>
+        <button onclick="event.stopPropagation(); addFavorite('${match.teams.home.name}','${match.teams.home.logo}')">⭐</button>
       </div>
     `;
 
