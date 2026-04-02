@@ -23,7 +23,6 @@ function loadLeagueTabs() {
 
   leaguesConfig.forEach((l, i) => {
     const btn = document.createElement("button");
-
     btn.textContent = l.name;
 
     btn.onclick = () => {
@@ -45,7 +44,11 @@ function loadLeagueTabs() {
 
 async function loadLeague(leagueId) {
   const container = document.getElementById("leagueContent");
-  container.innerHTML = "Cargando...";
+
+  // 🔥 Skeleton loading
+  container.innerHTML = `
+    ${Array(8).fill('<div class="skeleton"></div>').join('')}
+  `;
 
   try {
     const res = await fetch(`${API}/standings/${leagueId}`);
@@ -57,7 +60,7 @@ async function loadLeague(leagueId) {
     }
 
     container.innerHTML = `
-      <div class="league-card">
+      <div class="league-card fade-in">
         ${data.map((t,i)=>{
 
           const logo = t.team.logo || t.team.crest || "https://via.placeholder.com/20";
@@ -77,9 +80,7 @@ async function loadLeague(leagueId) {
                 <span>${t.team.name}</span>
               </div>
 
-              <div class="points">
-                ${t.points}
-              </div>
+              <div class="points">${t.points}</div>
 
             </div>
           `;
@@ -96,28 +97,9 @@ async function loadLeague(leagueId) {
 // AUTH
 // ============================
 
-async function register() {
-  const email = emailInput();
-  const password = passwordInput();
-
-  if (!email || !password) return alert("Completa los campos");
-
-  const res = await fetch(`${API}/register`, {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ email, password })
-  });
-
-  const data = await res.json();
-
-  if (!res.ok) return alert(data.error);
-
-  alert("Usuario creado ✅");
-}
-
 async function login() {
-  const email = emailInput();
-  const password = passwordInput();
+  const email = val("email");
+  const password = val("password");
   const msg = document.getElementById("msg");
 
   if (!email || !password) {
@@ -145,6 +127,21 @@ async function login() {
   updateAuthUI();
 }
 
+async function register() {
+  const email = val("email");
+  const password = val("password");
+
+  if (!email || !password) return alert("Completa campos");
+
+  await fetch(`${API}/register`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ email, password })
+  });
+
+  alert("Usuario creado");
+}
+
 function logout() {
   localStorage.clear();
   location.reload();
@@ -154,12 +151,8 @@ function toggleLogin() {
   document.getElementById("authBox").classList.toggle("hidden");
 }
 
-function emailInput() {
-  return document.getElementById("email").value.trim();
-}
-
-function passwordInput() {
-  return document.getElementById("password").value.trim();
+function val(id) {
+  return document.getElementById(id).value.trim();
 }
 
 function updateAuthUI() {
@@ -179,7 +172,7 @@ function updateAuthUI() {
 }
 
 // ============================
-// FILTROS + PARTIDOS
+// PARTIDOS
 // ============================
 
 let currentFilter = "all";
@@ -223,7 +216,7 @@ async function loadMatches() {
 
 async function fetchData(url) {
   const res = await fetch(`${API}${url}`);
-  return await res.json();
+  return res.json();
 }
 
 function renderMatches(data) {
@@ -274,20 +267,13 @@ async function openMatch(id) {
   const res = await fetch(`${API}/match/${id}`);
   const data = await res.json();
 
-  const match = data.fixture;
-  const teams = data.teams;
-
   document.getElementById("matchDetail").innerHTML = `
     <div class="match-header-pro">
-      <div>${match.league.name}</div>
-
+      <div>${data.fixture.league.name}</div>
       <div class="score-big">
-        ${match.goals.home} - ${match.goals.away}
+        ${data.fixture.goals.home} - ${data.fixture.goals.away}
       </div>
-
-      <div>
-        ${teams.home.name} vs ${teams.away.name}
-      </div>
+      <div>${data.teams.home.name} vs ${data.teams.away.name}</div>
     </div>
   `;
 
