@@ -3,63 +3,84 @@
 // ============================
 const API = "/api";
 const leaguesConfig = [
-  { name: "España", code: "PD" },
-  { name: "Inglaterra", code: "PL" },
-  { name: "Italia", code: "SA" },
-  { name: "Alemania", code: "BL1" },
-  { name: "Francia", code: "FL1" },
-  { name: "Argentina", code: "LPF" },
-  { name: "México", code: "MX" }
+  { name: "🇪🇸 La Liga", id: 140 },
+  { name: "🏴 Premier", id: 39 },
+  { name: "🇮🇹 Serie A", id: 135 },
+  { name: "🇩🇪 Bundesliga", id: 78 },
+  { name: "🇫🇷 Ligue 1", id: 61 },
+  { name: "🇦🇷 Argentina", id: 128 },
+  { name: "🇲🇽 Liga MX", id: 262 }
 ];
+
+
+//
+//CREAR PESTAÑAS
+//
+function loadLeagueTabs() {
+  const container = document.getElementById("leagueTabs");
+
+  leaguesConfig.forEach((l, i) => {
+    const btn = document.createElement("button");
+
+    btn.textContent = l.name;
+
+    btn.onclick = () => {
+      document.querySelectorAll(".league-tabs button")
+        .forEach(b => b.classList.remove("active"));
+
+      btn.classList.add("active");
+
+      loadLeague(l.id);
+    };
+
+    if (i === 0) {
+      btn.classList.add("active");
+      loadLeague(l.id);
+    }
+
+    container.appendChild(btn);
+  });
+}
+
 
 //
 // CARGAR TABLAS
 //
-async function loadLeagues() {
-  const container = document.getElementById("leagues");
-  container.innerHTML = "";
+async function loadLeague(leagueId) {
+  const container = document.getElementById("leagueContent");
+  container.innerHTML = "Cargando...";
 
-  for (let league of leaguesConfig) {
-    try {
-      const res = await fetch(`/api/standings/${league.code}`);
-      const data = await res.json();
+  try {
+    const res = await fetch(`/api/standings/${leagueId}`);
+    const data = await res.json();
 
-      const div = document.createElement("div");
-      div.className = "league-table";
-
-      div.innerHTML = `
-        <h3>${league.name}</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Equipo</th>
-              <th>Pts</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${data.slice(0,5).map((t,i)=>`
-              <tr>
-                <td>${i+1}</td>
-                <td>
-                  <img src="${t.team.crest}" width="18">
-                  ${t.team.name}
-                </td>
-                <td>${t.points}</td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-      `;
-
-      container.appendChild(div);
-
-    } catch (e) {
-      console.log("Error liga:", league.name);
+    if (!data || !data.length) {
+      container.innerHTML = "Sin datos";
+      return;
     }
+
+    container.innerHTML = `
+      <div class="league-card">
+        ${data.slice(0,10).map((t,i)=>`
+          <div class="team-row">
+            <div class="team-info">
+              <span>${i+1}</span>
+              <img src="${t.team.logo}" width="20">
+              <span>${t.team.name}</span>
+            </div>
+
+            <div>
+              ${t.points} pts
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+
+  } catch (e) {
+    container.innerHTML = "Error cargando liga";
   }
 }
-
 
 // ============================
 // AUTH (LOGIN / REGISTER)
@@ -534,7 +555,7 @@ function updateAuthUI() {
 document.addEventListener("DOMContentLoaded", () => {
   loadMatches();
   updateAuthUI();
-  loadLeagues();
+  loadLeagueTabs();
 
   setInterval(loadMatches, 30000);
 });
