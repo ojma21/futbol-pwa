@@ -221,7 +221,10 @@ function setFilter(filter) {
 
 async function loadMatches() {
   const container = document.getElementById("matches");
+  if (!container.innerHTML) {
   container.innerHTML = "Cargando...";
+}
+
 
   try {
     let data = [];
@@ -237,6 +240,24 @@ async function loadMatches() {
       ]);
       data = [...live, ...today];
     }
+
+
+//ACTUALIZAR TITULOS FILTRO
+function updateTitle() {
+  const title = document.getElementById("matchesTitle");
+
+  if (currentFilter === "live") {
+    title.textContent = "🔴 En vivo";
+  } else if (currentFilter === "today") {
+    title.textContent = "📅 Hoy";
+  } else {
+    title.textContent = "🔥 Todos los partidos";
+  }
+updateTitle();
+window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+
 
     // 🔥 DETECCIÓN DE GOLES SOLO FAVORITOS
     data.forEach(match => {
@@ -277,15 +298,20 @@ async function fetchData(url) {
 
 function renderMatches(data) {
   const container = document.getElementById("matches");
-  container.innerHTML = "";
 
   data.forEach(match => {
-    const div = document.createElement("div");
-    div.className = "match-card";
+    let existing = document.getElementById("match-" + match.fixture.id);
 
-    div.onclick = () => openMatch(match.fixture.id);
+    if (!existing) {
+      const div = document.createElement("div");
+      div.className = "match-card";
+      div.id = "match-" + match.fixture.id;
 
-    div.innerHTML = `
+      container.appendChild(div);
+      existing = div;
+    }
+
+    existing.innerHTML = `
       <div class="league">${match.league.name}</div>
 
       <div class="match-row">
@@ -310,10 +336,9 @@ function renderMatches(data) {
           : "Programado"}
       </div>
     `;
-
-    container.appendChild(div);
   });
 }
+
 
 // ============================
 // 🔔 NOTIFICACIÓN

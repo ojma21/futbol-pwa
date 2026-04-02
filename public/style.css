@@ -610,3 +610,15 @@ html {
     transform: translate(-50%, 0);
   }
 }
+
+#matches {
+  margin-top: 10px;
+}
+
+.league-tabs {
+  margin-top: 25px;
+}
+
+#leagueContent {
+  margin-top: 10px;
+}
