@@ -1,3 +1,4 @@
+console.log("🔥 app.js cargado");
 const API = "/api";
 
 let currentFilter = "all";
@@ -119,7 +120,18 @@ const leagues = [
 ];
 
 async function loadLeagues() {
+  console.log("🔥 loadLeagues ejecutado");
+
   const tabs = document.getElementById("leagueTabs");
+  const content = document.getElementById("leagueContent");
+
+  console.log("tabs:", tabs);
+  console.log("content:", content);
+
+  if (!tabs || !content) {
+    console.log("❌ ERROR: no existe leagueTabs o leagueContent");
+    return;
+  }
 
   tabs.innerHTML = "";
 
@@ -129,21 +141,24 @@ async function loadLeagues() {
 
     btn.onclick = () => loadStandings(l.id);
 
-    // 🔥 ACTIVO visual
-    if (index === 0) btn.classList.add("active");
-
     tabs.appendChild(btn);
   });
+
+  console.log("🔥 botones creados");
 
   loadStandings(leagues[0].id);
 }
 
 async function loadStandings(leagueId) {
+  console.log("🔥 loadStandings:", leagueId);
+
   const container = document.getElementById("leagueContent");
 
-  container.innerHTML = "Cargando tabla...";
+  container.innerHTML = "Cargando...";
 
-  const data = await fetchData(/standings/${leagueId});
+  const data = await fetchData(`/standings/${leagueId}`);
+
+  console.log("📊 DATA:", data);
 
   if (!data || !data.length) {
     container.innerHTML = "No hay datos";
@@ -154,13 +169,11 @@ async function loadStandings(leagueId) {
 
   data.forEach((team, i) => {
     const div = document.createElement("div");
-    div.className = "table-row";
 
     div.innerHTML = `
       <span>${i + 1}</span>
-      <img src="${team.team.logo}" width="20">
-      <span>${team.team.name}</span>
-      <b>${team.points}</b>
+      <span>${team.team?.name}</span>
+      <span>${team.points}</span>
     `;
 
     container.appendChild(div);
@@ -204,10 +217,10 @@ function setFilter(f) {
 // ============================
 // INIT (SIN CAMBIOS)
 // ============================
-
 document.addEventListener("DOMContentLoaded", () => {
+  console.log("🔥 INIT");
   loadMatches();
   loadLeagues();
 
-  setInterval(loadMatches, 30000);
+setInterval(loadMatches, 30000);
 });
