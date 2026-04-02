@@ -20,17 +20,7 @@
   <button id="loginBtn" onclick="toggleLogin()">Login</button>
 </header>
 
-<div id="authBox" class="auth-modal hidden">
-  <div class="auth-container">
-    <h2>Bienvenido 👋</h2>
-    <input id="email" placeholder="Correo">
-    <input id="password" type="password" placeholder="Contraseña">
-    <button onclick="login()">Entrar</button>
-    <button onclick="register()">Crear cuenta</button>
-  </div>
-</div>
-
-<!-- LOGIN -->
+<!-- LOGIN MODAL -->
 <div id="authBox" class="auth-modal hidden">
   <div class="auth-container">
 
@@ -49,7 +39,6 @@
   </div>
 </div>
 
-
 <!-- APP -->
 <main id="appContent">
 
@@ -60,26 +49,28 @@
     <button onclick="setFilter('today')" id="f_today">TODAY</button>
   </div>
 
-  <!-- PARTIDOS -->
+  <!-- LIGAS (PESTAÑAS) -->
   <div class="league-tabs" id="leagueTabs"></div>
 
   <div id="leagueContent"></div>
+
+  <!-- PARTIDOS -->
   <section id="matches"></section>
 
 </main>
 
-<script src="app.js"></script>
-
-
+<!-- MODAL PARTIDO -->
 <div id="matchModal" class="modal">
   <div class="modal-content">
 
-    <span class="close-modal" onclick="toggleLogin()">✖</span>
+    <span class="close-modal" onclick="closeModal()">✖</span>
 
     <div id="matchDetail"></div>
 
   </div>
 </div>
+
+<script src="app.js"></script>
 
 </body>
 </html>
