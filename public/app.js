@@ -39,32 +39,51 @@ function goTab(tab) {
 function showFavorites() {
   const container = document.getElementById("matches");
 
+  container.innerHTML = "<h2>⭐ Favoritos</h2>";
+
   if (!favorites.length) {
-    container.innerHTML = "<p>No tienes favoritos</p>";
+    container.innerHTML += "<p>No tienes favoritos</p>";
     return;
   }
 
-  container.innerHTML = "<h2>⭐ Favoritos</h2>";
+  fetchData("/today").then(data => {
+    const favMatches = data.filter(m => favorites.includes(m.fixture.id));
 
-  favorites.forEach(id => {
-    container.innerHTML += `<div class="match-card">Partido ID: ${id}</div>`;
+    if (!favMatches.length) {
+      container.innerHTML += "<p>No hay partidos activos en favoritos</p>";
+      return;
+    }
+
+    favMatches.forEach(match => {
+      const div = document.createElement("div");
+      div.className = "match-card";
+
+      div.innerHTML = `
+        <div class="match-row">
+          <div class="team">
+            <img src="${match.teams.home.logo}">
+            ${match.teams.home.name}
+          </div>
+
+          <div class="score">
+            ${match.goals.home ?? "-"} - ${match.goals.away ?? "-"}
+          </div>
+
+          <div class="team">
+            ${match.teams.away.name}
+            <img src="${match.teams.away.logo}">
+          </div>
+        </div>
+      `;
+
+      container.appendChild(div);
+    });
   });
 
   document.getElementById("leagueContent").style.display = "none";
-  container.style.display = "block";
 }
 
-//----------------
-//NOTIFICACIONES PRO 
-//----------------
-function showNotification(match) {
-  if (Notification.permission !== "granted") return;
 
-  new Notification("⚽ Gol!", {
-    body: `${match.teams.home.name} ${match.goals.home} - ${match.goals.away} ${match.teams.away.name}`,
-    icon: match.teams.home.logo
-  });
-}
 
 
 // ============================
@@ -168,6 +187,7 @@ function renderMatches(data) {
 
     const div = document.createElement("div");
     div.className = "match-card";
+    div.classList.add("fade-in");
 
     div.innerHTML = `
       <div class="league">
@@ -223,9 +243,10 @@ function checkNotifications(matches) {
     }
 
     if (notifiedEvents[id] !== goals) {
-      showNotification(match);
-      notifiedEvents[id] = goals;
-    }
+  showNotification(match);
+  showToast(`⚽ Gol en ${match.teams.home.name} vs ${match.teams.away.name}`);
+  notifiedEvents[id] = goals;
+}
   });
 }
 
@@ -242,6 +263,16 @@ function showNotification(match) {
 // pedir permiso una vez
 if ("Notification" in window && Notification.permission !== "granted") {
   Notification.requestPermission();
+}
+
+function showToast(message) {
+  const div = document.createElement("div");
+  div.className = "goal-notification";
+  div.innerText = message;
+
+  document.body.appendChild(div);
+
+  setTimeout(() => div.remove(), 3000);
 }
 
 // ============================
