@@ -45,10 +45,16 @@
 
   <!-- FILTROS -->
   <div class="filters">
-    <button onclick="setFilter('all')" id="f_all" class="active">ALL</button>
-    <button onclick="setFilter('live')" id="f_live">LIVE NOW</button>
-    <button onclick="setFilter('today')" id="f_today">TODAY</button>
-  </div>
+  <button onclick="setFilter('all')" id="f_all" class="active">ALL</button>
+  <button onclick="setFilter('live')" id="f_live">🔴 LIVE</button>
+  <button onclick="setFilter('today')" id="f_today">📅 TODAY</button>
+</div>
+
+container.innerHTML = `
+  <div class="skeleton"></div>
+  <div class="skeleton"></div>
+  <div class="skeleton"></div>
+`;
 
   <!-- PARTIDOS -->
   <h2 id="matchesTitle">Partidos</h2>

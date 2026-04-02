@@ -7,9 +7,10 @@ let currentFilter = "all";
 // LOGIN
 //
 function toggleLogin() {
-  const box = document.getElementById("authBox");
-  box.classList.toggle("hidden");
+  document.getElementById("authBox").classList.toggle("hidden");
 }
+
+
 
 function login() {
   const email = document.getElementById("email").value;
@@ -212,15 +213,15 @@ async function loadStandings(leagueId) {
     ${data.map((team, i) => `
       <div class="table-row">
         <span class="pos">${i + 1}</span>
-        <img src="${team.team.logo}" width="20">
-        <span class="name">${team.team.name}</span>
-        <span class="pts">${team.points}</span>
+        <img src="${team.team?.logo || ''}" width="20">
+        <span class="name">${team.team?.name || 'Equipo'}</span>
+        <span class="pts">${team.points || '-'}</span>
       </div>
     `).join("")}
   </div>
 `;
 
-    container.appendChild(div);
+    
   });
 }
 
@@ -261,11 +262,6 @@ function setFilter(f) {
 // ============================
 // INIT (SIN CAMBIOS)
 // ============================
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("🔥 INIT");
-  loadMatches();
-  loadLeagues();
-
 const savedUser = localStorage.getItem("user");
 
 if (savedUser) {
@@ -273,6 +269,13 @@ if (savedUser) {
   document.getElementById("userBox").style.display = "block";
   document.getElementById("loginBtn").style.display = "none";
 }
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("🔥 INIT");
+  loadMatches();
+  loadLeagues();
+
 
 setInterval(loadMatches, 30000);
 });
