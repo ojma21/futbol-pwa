@@ -41,21 +41,20 @@
 </div>
 
 <!-- APP -->
-<!-- APP -->
 <main id="appContent">
 
-  <!-- 🔥 FILTROS -->
+  <!-- FILTROS -->
   <div class="filters">
     <button onclick="setFilter('all')" id="f_all" class="active">ALL</button>
     <button onclick="setFilter('live')" id="f_live">LIVE NOW</button>
     <button onclick="setFilter('today')" id="f_today">TODAY</button>
   </div>
 
-  <!-- 🔥 PARTIDOS (PRIMERO) -->
+  <!-- PARTIDOS -->
   <h2 id="matchesTitle">Partidos</h2>
   <section id="matches"></section>
 
-  <!-- 🔥 LIGAS (DESPUÉS) -->
+  <!-- LIGAS -->
   <div class="league-tabs" id="leagueTabs"></div>
   <div id="leagueContent"></div>
 
@@ -63,7 +62,6 @@
 
 <!-- MODAL PARTIDO -->
 <div id="matchModal" class="modal">
-  <div id="matchModal" class="modal">
   <div class="modal-content">
     <span onclick="closeModal()">✖</span>
     <div id="matchDetail"></div>
