@@ -3,6 +3,44 @@ const API = "/api";
 
 let currentFilter = "all";
 
+//
+// LOGIN
+//
+function toggleLogin() {
+  const box = document.getElementById("authBox");
+  box.classList.toggle("hidden");
+}
+
+function login() {
+  const email = document.getElementById("email").value;
+
+  if (!email) {
+    alert("Ingresa un correo");
+    return;
+  }
+
+  localStorage.setItem("user", email);
+
+  document.getElementById("userEmail").textContent = email;
+  document.getElementById("userBox").style.display = "block";
+  document.getElementById("loginBtn").style.display = "none";
+
+  toggleLogin();
+}
+
+function register() {
+  alert("Usuario creado (demo)");
+}
+
+function logout() {
+  localStorage.removeItem("user");
+
+  document.getElementById("userBox").style.display = "none";
+  document.getElementById("loginBtn").style.display = "block";
+}
+
+
+
 // ============================
 // FETCH
 // ============================
@@ -58,9 +96,13 @@ function renderMatches(data) {
   const container = document.getElementById("matches");
 
   if (!data || !data.length) {
-    container.innerHTML = "<p>No hay partidos disponibles</p>";
-    return;
-  }
+  container.innerHTML = `
+    <div style="opacity:.7;padding:20px;">
+      ⚠️ No hay partidos en este momento
+    </div>
+  `;
+  return;
+}
 
   container.innerHTML = "";
 
@@ -165,16 +207,18 @@ async function loadStandings(leagueId) {
     return;
   }
 
-  container.innerHTML = "";
-
-  data.forEach((team, i) => {
-    const div = document.createElement("div");
-
-    div.innerHTML = `
-      <span>${i + 1}</span>
-      <span>${team.team?.name}</span>
-      <span>${team.points}</span>
-    `;
+  container.innerHTML = `
+  <div class="table">
+    ${data.map((team, i) => `
+      <div class="table-row">
+        <span class="pos">${i + 1}</span>
+        <img src="${team.team.logo}" width="20">
+        <span class="name">${team.team.name}</span>
+        <span class="pts">${team.points}</span>
+      </div>
+    `).join("")}
+  </div>
+`;
 
     container.appendChild(div);
   });
@@ -221,6 +265,14 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("🔥 INIT");
   loadMatches();
   loadLeagues();
+
+const savedUser = localStorage.getItem("user");
+
+if (savedUser) {
+  document.getElementById("userEmail").textContent = savedUser;
+  document.getElementById("userBox").style.display = "block";
+  document.getElementById("loginBtn").style.display = "none";
+}
 
 setInterval(loadMatches, 30000);
 });

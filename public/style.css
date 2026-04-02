@@ -622,3 +622,28 @@ html {
 #leagueContent {
   margin-top: 10px;
 }
+
+.table {
+  margin-top: 10px;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 30px 30px 1fr 40px;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.table-row img {
+  width: 20px;
+}
+
+.pos {
+  opacity: .6;
+}
+
+.pts {
+  font-weight: bold;
+  text-align: right;
+}
