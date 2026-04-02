@@ -2,6 +2,7 @@
 // CONFIG
 // ============================
 const API = "/api";
+const logo = t.team.logo || t.team.crest || "https://via.placeholder.com/20";
 const leaguesConfig = [
   { name: "🇪🇸 La Liga", id: 140 },
   { name: "🏴 Premier", id: 39 },
@@ -48,6 +49,7 @@ function loadLeagueTabs() {
 //
 async function loadLeague(leagueId) {
   const container = document.getElementById("leagueContent");
+  const logo = t.team.logo || t.team.crest || "https://via.placeholder.com/20";
   container.innerHTML = "Cargando...";
 
   try {
@@ -65,7 +67,8 @@ async function loadLeague(leagueId) {
           <div class="team-row">
             <div class="team-info">
               <span>${i+1}</span>
-              <img src="${t.team.logo}" width="20">
+              <img src="${logo}" width="20">
+
               <span>${t.team.name}</span>
             </div>
 
