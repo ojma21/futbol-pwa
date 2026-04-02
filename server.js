@@ -147,6 +147,35 @@ app.delete("/api/favorites/:id", auth, (req, res) => {
   );
 });
 
+//DETALLE MODAL
+app.get("/api/match/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const response = await axios.get(
+      `https://v3.football.api-sports.io/fixtures?id=${id}`,
+      {
+        headers: {
+          "x-apisports-key": process.env.API_FOOTBALL_KEY
+        }
+      }
+    );
+
+    const data = response.data.response[0];
+
+    res.json({
+      fixture: data.fixture,
+      teams: data.teams,
+      goals: data.goals,
+      statistics: data.statistics,
+      events: data.events
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: "Error detalle partido" });
+  }
+});
+
 
 // 📌 PARTIDOS GUARDADOS
 app.get("/api/matches", (req, res) => {

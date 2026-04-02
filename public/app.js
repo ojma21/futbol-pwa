@@ -196,49 +196,92 @@ async function loadMatches() {
 
 // 📡 PARTIDOS EN VIVO (CON LOGOS)
 async function loadLiveMatches() {
-  try {
-    const res = await fetch(`${API}/live-matches`);
-    const data = await res.json();
+  const res = await fetch(`${API}/live-matches`);
+  const data = await res.json();
 
-    const selectedLeague = document.getElementById("liveLeague").value;
+  const container = document.getElementById("liveMatches");
+  container.innerHTML = "";
 
-    const container = document.getElementById("live");
-    container.innerHTML = "";
+  data.forEach(match => {
+    const div = document.createElement("div");
+    div.className = "match-card";
+    div.onclick = () => openMatch(match.fixture.id);
 
-    data.forEach(match => {
+    div.innerHTML = `
+      <div class="league">${match.league.name}</div>
 
-      // 🔥 FILTRO
-      if (selectedLeague !== "all" && match.league.id != selectedLeague) {
-        return;
-      }
-
-      const div = document.createElement("div");
-      div.className = "match-card";
-      div.onclick = () => openMatch(match.fixture.id);
-      div.innerHTML = `
+      <div class="match-row">
         <div class="team">
-          <img src="${match.teams.home.logo}" />
+          <img src="${match.teams.home.logo}">
           <span>${match.teams.home.name}</span>
         </div>
 
         <div class="score">
           ${match.goals.home ?? 0} - ${match.goals.away ?? 0}
-          <small>${match.fixture.status.elapsed ?? 0}'</small>
         </div>
 
-        <div class="team">
-          <img src="${match.teams.away.logo}" />
+        <div class="team" style="justify-content:end;">
           <span>${match.teams.away.name}</span>
+          <img src="${match.teams.away.logo}">
         </div>
-      `;
+      </div>
 
-      container.appendChild(div);
-    });
+      <div class="match-row">
+        <span class="status">⏱ ${match.fixture.status.elapsed || 0}'</span>
+        <button onclick="addFavorite('${match.teams.home.name}','${match.teams.home.logo}')">⭐</button>
+      </div>
+    `;
 
-  } catch (err) {
-    console.error("ERROR LIVE:", err);
-  }
+    container.appendChild(div);
+  });
 }
+
+//FUNCION PRINCIPAL DETALLE
+async function openMatch(id) {
+  const res = await fetch(`${API}/match/${id}`);
+  const data = await res.json();
+
+  const match = data.fixture;
+  const teams = data.teams;
+  const stats = data.statistics || [];
+  const events = data.events || [];
+
+  const container = document.getElementById("matchDetail");
+
+  container.innerHTML = `
+    <div class="match-header">
+      <img src="${teams.home.logo}">
+      <h2>${teams.home.name} vs ${teams.away.name}</h2>
+      <h3>${match.goals.home} - ${match.goals.away}</h3>
+      <img src="${teams.away.logo}">
+    </div>
+
+    <h3>📊 Estadísticas</h3>
+    ${stats.map(s => `
+      <div class="stat">
+        <span>${s.home}</span>
+        <span>${s.type}</span>
+        <span>${s.away}</span>
+      </div>
+    `).join("")}
+
+    <h3>⚡ Eventos</h3>
+    ${events.map(e => `
+      <div>
+        ${e.time.elapsed}' - ${e.team.name} - ${e.type}
+      </div>
+    `).join("")}
+  `;
+
+  document.getElementById("matchModal").style.display = "flex";
+}
+
+
+//CERRAR MODAL
+function closeModal() {
+  document.getElementById("matchModal").style.display = "none";
+}
+
 
 //ABRIR DETALLE
 async function openMatch(id) {
