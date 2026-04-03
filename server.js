@@ -187,15 +187,22 @@ app.get("/api/standings/:league", async (req, res) => {
 // ============================
 // DETALLE PARTIDO
 // ============================
-app.get("/api/match/:id", async (req, res) => {
+aapp.get("/api/match/:id", async (req, res) => {
   try {
     const id = req.params.id;
 
-    // 🔹 PARTIDO
+    // PARTIDO
     const match = await fetchApiFootball(`/fixtures?id=${id}`);
 
-    // 🔥 EVENTOS (CLAVE)
-    const events = await fetchApiFootball(`/fixtures/events?fixture=${id}`);
+    let events = [];
+
+    try {
+      // 🔥 INTENTA TRAER EVENTOS
+      events = await fetchApiFootball(`/fixtures/events?fixture=${id}`);
+    } catch (err) {
+      console.log("Error cargando eventos:", err.message);
+      events = []; // fallback
+    }
 
     res.json({
       ...match[0],
@@ -203,8 +210,17 @@ app.get("/api/match/:id", async (req, res) => {
     });
 
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error cargando partido" });
+    console.error("ERROR GENERAL:", err.message);
+
+    res.status(200).json({
+      teams: {
+        home: { name: "Error", logo: "" },
+        away: { name: "Error", logo: "" }
+      },
+      goals: { home: 0, away: 0 },
+      fixture: { status: { long: "Error", elapsed: 0 } },
+      events: []
+    });
   }
 });
 
