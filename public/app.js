@@ -398,20 +398,20 @@ async function openMatch(id) {
     container.innerHTML = `
       <div class="match-detail-pro">
 
-        <div class="match-header-pro">
+        <!-- HEADER -->
+        <div class="detail-header">
 
           <button class="back-btn" onclick="goTab('home')">⬅</button>
 
-          <div class="teams-header">
-            <div class="team-col">
+          <div class="teams-row">
+
+            <div class="team-box">
               <img src="${data.teams.home.logo}">
               <span>${data.teams.home.name}</span>
             </div>
 
-            <div class="score-center">
-              <div class="status">
-                ${data.fixture.status.long}
-              </div>
+            <div class="center-box">
+              <div class="status">${data.fixture.status.long}</div>
 
               <div class="score-big">
                 ${data.goals.home} - ${data.goals.away}
@@ -422,20 +422,21 @@ async function openMatch(id) {
               </div>
             </div>
 
-            <div class="team-col">
+            <div class="team-box">
               <img src="${data.teams.away.logo}">
               <span>${data.teams.away.name}</span>
             </div>
+
           </div>
         </div>
 
+        <!-- TABS -->
         <div class="tabs-detail">
-          <button class="active">Resumen</button>
-          <button>Eventos</button>
-          <button>Alineación</button>
+          <button class="active">Eventos</button>
         </div>
 
-        <div class="events-list">
+        <!-- EVENTOS -->
+        <div class="timeline">
           ${renderEvents(data.events || [])}
         </div>
 
@@ -443,8 +444,8 @@ async function openMatch(id) {
     `;
 
   } catch (err) {
-    alert("Error cargando partido");
     console.error(err);
+    alert("Error cargando partido");
   }
 }
 
@@ -455,19 +456,31 @@ async function openMatch(id) {
 
 function renderEvents(events) {
   if (!events.length) {
-    return "<p style='opacity:.6'>No hay eventos</p>";
+    return "<p style='opacity:.5'>No hay eventos</p>";
   }
 
-  return events.map(e => `
-    <div class="event-row">
-      <div class="minute">${e.time?.elapsed || ""}'</div>
+  return events.map(e => {
 
-      <div class="event-info">
-        <strong>${e.player?.name || ""}</strong>
-        <span>${e.type} - ${e.detail}</span>
+    let icon = "⚽";
+    if (e.type === "Card") icon = "🟨";
+    if (e.type === "subst") icon = "🔄";
+
+    return `
+      <div class="event">
+        <div class="minute">${e.time?.elapsed || ""}'</div>
+
+        <div class="line"></div>
+
+        <div class="event-content">
+          <span class="icon">${icon}</span>
+          <div>
+            <strong>${e.player?.name || ""}</strong>
+            <p>${e.detail || ""}</p>
+          </div>
+        </div>
       </div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 }
 
 

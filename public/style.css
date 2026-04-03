@@ -876,3 +876,80 @@ html {
   flex-direction: column;
   font-size: 14px;
 }
+
+/* HEADER DETALLE */
+.detail-header {
+  padding: 20px 10px;
+  background: linear-gradient(180deg, #0a1a2f, #0f172a);
+}
+
+.teams-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.team-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 30%;
+}
+
+.team-box img {
+  width: 40px;
+  height: 40px;
+}
+
+.center-box {
+  text-align: center;
+}
+
+.score-big {
+  font-size: 32px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.status {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.minute {
+  font-size: 12px;
+  color: #22c55e;
+}
+
+/* TIMELINE */
+.timeline {
+  padding: 10px;
+}
+
+.event {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.event .minute {
+  width: 40px;
+  font-size: 12px;
+}
+
+.line {
+  width: 2px;
+  height: 40px;
+  background: #374151;
+  margin: 0 10px;
+}
+
+.event-content {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.icon {
+  font-size: 18px;
+}
