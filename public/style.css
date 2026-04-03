@@ -953,3 +953,86 @@ html {
 .icon {
   font-size: 18px;
 }
+
+.detail-container {
+  background: linear-gradient(180deg, #0a1a2f, #0f172a);
+  min-height: 100vh;
+  color: white;
+}
+
+/* HEADER */
+.detail-header {
+  padding: 20px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.teams-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.team {
+  width: 30%;
+  text-align: center;
+}
+
+.team img {
+  width: 40px;
+  height: 40px;
+}
+
+.score-box {
+  text-align: center;
+}
+
+.score {
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.status {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.minute {
+  font-size: 12px;
+  color: #22c55e;
+}
+
+/* TIMELINE */
+.timeline {
+  padding: 20px;
+}
+
+.timeline-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.timeline-row.left {
+  flex-direction: row;
+}
+
+.timeline-row.right {
+  flex-direction: row-reverse;
+}
+
+.content {
+  display: flex;
+  gap: 10px;
+  max-width: 70%;
+}
+
+.icon {
+  font-size: 18px;
+}

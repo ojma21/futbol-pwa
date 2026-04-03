@@ -389,69 +389,83 @@ async function loadStandings(leagueId) {
 // ============================
 
 async function openMatch(id) {
-  try {
-    const res = await fetch(API + "/match/" + id);
-    const data = await res.json();
+  const res = await fetch(`/api/match/${id}`);
+  const data = await res.json();
 
-    const container = document.getElementById("screen_matches");
+  const container = document.getElementById("screen_matches");
 
-    container.innerHTML = `
-      <div class="match-detail-pro">
+  container.innerHTML = `
+    <div class="detail-container">
 
-        <!-- HEADER -->
-        <div class="detail-header">
+      <!-- HEADER -->
+      <div class="detail-header">
 
-          <button class="back-btn" onclick="goTab('home')">⬅</button>
+        <button class="back-btn" onclick="goTab('home')">✕</button>
 
-          <div class="teams-row">
+        <div class="teams-row">
+          <div class="team">
+            <img src="${data.teams.home.logo}">
+            <span>${data.teams.home.name}</span>
+          </div>
 
-            <div class="team-box">
-              <img src="${data.teams.home.logo}">
-              <span>${data.teams.home.name}</span>
-            </div>
+          <div class="score-box">
+            <div class="status">${data.fixture.status.long}</div>
+            <div class="score">${data.goals.home} - ${data.goals.away}</div>
+            <div class="minute">${data.fixture.status.elapsed || ""}'</div>
+          </div>
 
-            <div class="center-box">
-              <div class="status">${data.fixture.status.long}</div>
-
-              <div class="score-big">
-                ${data.goals.home} - ${data.goals.away}
-              </div>
-
-              <div class="minute">
-                ${data.fixture.status.elapsed || ""}'
-              </div>
-            </div>
-
-            <div class="team-box">
-              <img src="${data.teams.away.logo}">
-              <span>${data.teams.away.name}</span>
-            </div>
-
+          <div class="team">
+            <img src="${data.teams.away.logo}">
+            <span>${data.teams.away.name}</span>
           </div>
         </div>
 
-        <!-- TABS -->
-        <div class="tabs-detail">
-          <button class="active">Eventos</button>
-        </div>
-
-        <!-- EVENTOS -->
-        <div class="timeline">
-          ${renderEvents(data.events || [])}
-        </div>
-
       </div>
-    `;
 
-  } catch (err) {
-    console.error(err);
-    alert("Error cargando partido");
-  }
+      <!-- TIMELINE -->
+      <div class="timeline">
+        ${renderTimeline(data.events || [])}
+      </div>
+
+    </div>
+  `;
 }
 
 // ============================
 // eventos
 // ============================
+function renderTimeline(events) {
+  if (!events.length) {
+    return "<p style='opacity:.5'>Sin eventos</p>";
+  }
+
+  return events.map((e, i) => {
+
+    const isLeft = i % 2 === 0;
+
+    let icon = "⚽";
+    if (e.type === "Card") icon = "🟨";
+    if (e.type === "subst") icon = "🔄";
+
+    return `
+      <div class="timeline-row ${isLeft ? "left" : "right"}">
+
+        <div class="content">
+          <span class="icon">${icon}</span>
+          <div>
+            <strong>${e.player?.name || ""}</strong>
+            <p>${e.detail || ""}</p>
+          </div>
+        </div>
+
+        <div class="minute">${e.time?.elapsed || ""}'</div>
+
+      </div>
+    `;
+  }).join("");
+}
+
+
 
 
 function renderEvents(events) {
