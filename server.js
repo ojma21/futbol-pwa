@@ -231,16 +231,20 @@ app.get("/api/match/:id", async (req, res) => {
 
     const match = await fetchApiFootball(`/fixtures?id=${id}`);
     const events = await fetchApiFootball(`/fixtures/events?fixture=${id}`);
+    const stats = await fetchApiFootball(`/fixtures/statistics?fixture=${id}`);
+    const lineups = await fetchApiFootball(`/fixtures/lineups?fixture=${id}`);
 
-    if (!match.length) return res.json({ events: [] });
+    if (!match.length) return res.json({});
 
     res.json({
       ...match[0],
-      events: events || []
+      events,
+      stats,
+      lineups
     });
 
   } catch {
-    res.json({ events: [] });
+    res.json({});
   }
 });
 

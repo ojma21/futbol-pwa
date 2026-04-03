@@ -1042,3 +1042,184 @@ html {
   font-size: 14px;
   color: #9ca3af;
 }
+
+.live-title {
+  color: #ff4d4d;
+  margin: 10px;
+  font-weight: bold;
+}
+
+.league-header {
+  background: #111827;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.league-content {
+  padding: 0 10px;
+}
+
+/* 🔥 marcador animado */
+.live-score {
+  animation: pulseScore 1.2s infinite;
+}
+
+@keyframes pulseScore {
+  0% { transform: scale(1); color: white; }
+  50% { transform: scale(1.2); color: #22c55e; }
+  100% { transform: scale(1); color: white; }
+}
+
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.tabs button {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid #374151;
+  background: transparent;
+  color: white;
+}
+
+.tabs button.active {
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+/* STATS */
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #1f2937;
+}
+
+/* LINEUPS */
+.lineup-team {
+  margin: 10px;
+  padding: 10px;
+  background: #1f2937;
+  border-radius: 10px;
+}
+
+.pitch {
+  background: linear-gradient(#0f3d0f, #0a2a0a);
+  border-radius: 20px;
+  padding: 20px;
+  position: relative;
+  min-height: 500px;
+}
+
+/* línea central */
+.pitch::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(255,255,255,0.2);
+}
+
+/* equipos */
+.team-home, .team-away {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.team-home {
+  margin-bottom: 40px;
+}
+
+.team-away {
+  margin-top: 40px;
+}
+
+/* líneas */
+.line {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* jugador */
+.player {
+  background: #111827;
+  color: white;
+  padding: 5px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  text-align: center;
+}
+
+/* CONTENEDOR JUGADOR */
+.player-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 60px;
+}
+
+/* CAMISETA */
+.jersey {
+  width: 36px;
+  height: 40px;
+  background: linear-gradient(#1e40af, #1e3a8a);
+  border-radius: 6px 6px 10px 10px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  font-size: 12px;
+}
+
+/* mangas */
+.jersey::before,
+.jersey::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: inherit;
+  top: 8px;
+}
+
+.jersey::before {
+  left: -8px;
+  border-radius: 4px 0 0 4px;
+}
+
+.jersey::after {
+  right: -8px;
+  border-radius: 0 4px 4px 0;
+}
+
+/* nombre */
+.player-name {
+  font-size: 9px;
+  text-align: center;
+  margin-top: 4px;
+  opacity: 0.9;
+}
+
+/* LOCAL */
+.team-home .jersey {
+  background: linear-gradient(#22c55e, #15803d);
+}
+
+/* VISITANTE */
+.team-away .jersey {
+  background: linear-gradient(#ef4444, #7f1d1d);
+}

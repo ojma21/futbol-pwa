@@ -244,42 +244,92 @@ function renderMatches(matches) {
     return;
   }
 
-  // 🔥 AGRUPAR POR LIGA
+  const liveStates = ["1H", "2H", "HT"];
+
+  const liveMatches = matches.filter(m =>
+    liveStates.includes(m.fixture.status.short)
+  );
+
+  const otherMatches = matches.filter(m =>
+    !liveStates.includes(m.fixture.status.short)
+  );
+
+  // 🔴 LIVE SECTION
+  if (liveMatches.length) {
+    const liveDiv = document.createElement("div");
+    liveDiv.innerHTML = `<h3 class="live-title">🔴 EN VIVO</h3>`;
+
+    liveMatches.forEach(match => {
+      liveDiv.appendChild(createMatchCard(match));
+    });
+
+    container.appendChild(liveDiv);
+  }
+
+  // 📂 AGRUPAR POR LIGA
   const grouped = {};
 
-  matches.forEach(m => {
+  otherMatches.forEach(m => {
     const league = `${m.league.country} - ${m.league.name}`;
 
     if (!grouped[league]) grouped[league] = [];
     grouped[league].push(m);
   });
 
-  // 🔥 RENDER POR BLOQUES
   Object.keys(grouped).forEach(league => {
 
     const leagueDiv = document.createElement("div");
 
     leagueDiv.innerHTML = `
-      <h3 class="league-title">${league}</h3>
+      <div class="league-header" onclick="toggleLeague(this)">
+        <span>🌍 ${league}</span>
+        <span>▼</span>
+      </div>
+      <div class="league-content"></div>
     `;
 
+    const content = leagueDiv.querySelector(".league-content");
+
     grouped[league].forEach(match => {
-      const div = document.createElement("div");
-      div.className = "match-card";
-
-      div.innerHTML = `
-        <div class="match-row" onclick="openMatch(${match.fixture.id})">
-          <span>${match.teams.home.name}</span>
-          <strong>${match.goals.home ?? "-"} - ${match.goals.away ?? "-"}</strong>
-          <span>${match.teams.away.name}</span>
-        </div>
-      `;
-
-      leagueDiv.appendChild(div);
+      content.appendChild(createMatchCard(match));
     });
 
     container.appendChild(leagueDiv);
   });
+}
+
+
+function createMatchCard(match) {
+  const div = document.createElement("div");
+  div.className = "match-card";
+
+  div.innerHTML = `
+    <div class="match-row" onclick="openMatch(${match.fixture.id})">
+
+      <div class="team">
+        <img src="${match.teams.home.logo}">
+        ${match.teams.home.name}
+      </div>
+
+      <div class="score live-score">
+        ${match.goals.home ?? "-"} - ${match.goals.away ?? "-"}
+      </div>
+
+      <div class="team">
+        ${match.teams.away.name}
+        <img src="${match.teams.away.logo}">
+      </div>
+
+    </div>
+  `;
+
+  return div;
+}
+
+function toggleLeague(el) {
+  const content = el.nextElementSibling;
+  content.style.display =
+    content.style.display === "none" ? "block" : "none";
 }
 
 // ============================
@@ -402,6 +452,8 @@ async function openMatch(id) {
   const res = await fetch(`/api/match/${id}`);
   const data = await res.json();
 
+  window.currentMatch = data;
+
   const container = document.getElementById("screen_matches");
 
   container.innerHTML = `
@@ -432,11 +484,120 @@ async function openMatch(id) {
 
       </div>
 
-      <!-- TIMELINE -->
-      <div class="timeline">
-        ${renderTimeline(data.events || [])}
+      <!-- TABS -->
+      <div class="tabs">
+        <button onclick="switchTab('events')" class="active">Resumen</button>
+        <button onclick="switchTab('stats')">Estadísticas</button>
+        <button onclick="switchTab('lineups')">Alineaciones</button>
       </div>
 
+      <!-- CONTENT -->
+      <div id="tabContent"></div>
+
+    </div>
+  `;
+
+  renderTab("events");
+}
+
+function switchTab(tab) {
+  document.querySelectorAll(".tabs button").forEach(b => b.classList.remove("active"));
+  event.target.classList.add("active");
+
+  renderTab(tab);
+}
+
+function renderTab(tab) {
+  const data = window.currentMatch;
+  const container = document.getElementById("tabContent");
+
+  if (tab === "events") {
+    container.innerHTML = renderTimeline(data.events || []);
+  }
+
+  if (tab === "stats") {
+    container.innerHTML = renderStats(data.stats || []);
+  }
+
+  if (tab === "lineups") {
+    container.innerHTML = renderLineups(data.lineups || []);
+  }
+}
+
+function renderStats(stats) {
+  if (!stats.length) return "<p>Sin estadísticas</p>";
+
+  const s = stats[0].statistics;
+
+  return s.map(stat => `
+    <div class="stat-row">
+      <span>${stat.home}</span>
+      <span>${stat.type}</span>
+      <span>${stat.away}</span>
+    </div>
+  `).join("");
+}
+
+function renderLineups(lineups) {
+  if (!lineups.length) return "<p>Sin alineaciones</p>";
+
+  const home = lineups[0];
+  const away = lineups[1];
+
+  return `
+    <div class="pitch">
+
+      ${renderTeam(home, "home")}
+      ${renderTeam(away, "away")}
+
+    </div>
+  `;
+}
+
+function renderTeam(team, side) {
+  const groups = {
+    GK: [],
+    DF: [],
+    MF: [],
+    FW: []
+  };
+
+  team.startXI.forEach(p => {
+    const pos = p.player.pos;
+
+    if (groups[pos]) {
+      groups[pos].push({
+        name: p.player.name,
+        number: p.player.number
+      });
+    }
+  });
+
+  return `
+    <div class="team-${side}">
+
+      ${renderLine(groups.FW)}
+      ${renderLine(groups.MF)}
+      ${renderLine(groups.DF)}
+      ${renderLine(groups.GK)}
+
+    </div>
+  `;
+}
+
+function renderLine(players) {
+  if (!players.length) return "";
+
+  return `
+    <div class="line">
+      ${players.map(p => `
+        <div class="player-box">
+          <div class="jersey">
+            <span>${p.number || ""}</span>
+          </div>
+          <div class="player-name">${p.name}</div>
+        </div>
+      `).join("")}
     </div>
   `;
 }
