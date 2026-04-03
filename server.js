@@ -51,6 +51,9 @@ function isValid(cacheObj, ttl) {
   return cacheObj.data && (Date.now() - cacheObj.time < ttl);
 }
 
+// ============================
+// SAFE FETCH
+// ============================
 async function fetchApiFootball(url) {
   try {
     const res = await axios.get(`${API_FOOTBALL}${url}`, {
@@ -58,24 +61,25 @@ async function fetchApiFootball(url) {
       timeout: 5000
     });
 
-    if (!res.data || !res.data.response) {
-      console.log("Respuesta inválida:", res.data);
-      return [];
-    }
-
-    return res.data.response;
-
+    return res?.data?.response || [];
   } catch (err) {
     console.error("API ERROR:", err.message);
-    return []; // 🔥 evita que el server muera
+    return [];
   }
 }
 
 async function fetchFootballData(url) {
-  const res = await axios.get(`${API_FD}${url}`, {
-    headers: { "X-Auth-Token": process.env.FOOTBALL_DATA_KEY }
-  });
-  return res.data;
+  try {
+    const res = await axios.get(`${API_FD}${url}`, {
+      headers: { "X-Auth-Token": process.env.FOOTBALL_DATA_KEY },
+      timeout: 5000
+    });
+
+    return res.data;
+  } catch (err) {
+    console.error("FD ERROR:", err.message);
+    return {};
+  }
 }
 
 // ============================
@@ -94,34 +98,42 @@ function auth(req, res, next) {
 }
 
 // ============================
-// LOGIN / REGISTER
+// AUTH ROUTES
 // ============================
 app.post("/api/register", async (req, res) => {
-  const { email, password } = req.body;
-  const hashed = await bcrypt.hash(password, 10);
+  try {
+    const { email, password } = req.body;
+    const hashed = await bcrypt.hash(password, 10);
 
-  db.run(
-    "INSERT INTO users (email, password) VALUES (?, ?)",
-    [email, hashed],
-    err => {
-      if (err) return res.status(400).json({ error: "Usuario existe" });
-      res.json({ ok: true });
-    }
-  );
+    db.run(
+      "INSERT INTO users (email, password) VALUES (?, ?)",
+      [email, hashed],
+      err => {
+        if (err) return res.status(400).json({ error: "Usuario existe" });
+        res.json({ ok: true });
+      }
+    );
+  } catch {
+    res.json({ ok: false });
+  }
 });
 
 app.post("/api/login", (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  db.get("SELECT * FROM users WHERE email=?", [email], async (err, user) => {
-    if (!user) return res.status(400).json({ error: "No existe" });
+    db.get("SELECT * FROM users WHERE email=?", [email], async (err, user) => {
+      if (!user) return res.status(400).json({ error: "No existe" });
 
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) return res.status(400).json({ error: "Error" });
+      const valid = await bcrypt.compare(password, user.password);
+      if (!valid) return res.status(400).json({ error: "Error" });
 
-    const token = jwt.sign({ id: user.id }, SECRET);
-    res.json({ token });
-  });
+      const token = jwt.sign({ id: user.id }, SECRET);
+      res.json({ token });
+    });
+  } catch {
+    res.json({ error: true });
+  }
 });
 
 // ============================
@@ -129,7 +141,7 @@ app.post("/api/login", (req, res) => {
 // ============================
 app.get("/api/favorites", auth, (req, res) => {
   db.all("SELECT * FROM favorites WHERE user_id=?", [req.user.id], (e, rows) => {
-    res.json(rows);
+    res.json(rows || []);
   });
 });
 
@@ -144,102 +156,96 @@ app.post("/api/favorites", auth, (req, res) => {
 });
 
 // ============================
-// 🔴 LIVE (CACHE 30s)
+// LIVE
 // ============================
 app.get("/api/live-matches", async (req, res) => {
-  if (isValid(cache.live, 30000)) return res.json(cache.live.data);
+  try {
+    if (isValid(cache.live, 30000)) return res.json(cache.live.data);
 
-  const data = await fetchApiFootball("/fixtures?live=all");
+    const data = await fetchApiFootball("/fixtures?live=all");
 
-  cache.live = { data, time: Date.now() };
-  res.json(data);
+    cache.live = { data, time: Date.now() };
+    res.json(data);
+  } catch {
+    res.json([]);
+  }
 });
 
 // ============================
-// 📅 TODAY (CACHE 5min)
+// TODAY
 // ============================
 app.get("/api/today", async (req, res) => {
-  if (isValid(cache.today, 300000)) return res.json(cache.today.data);
+  try {
+    if (isValid(cache.today, 300000)) return res.json(cache.today.data);
 
-  const today = new Date().toISOString().split("T")[0];
-  const data = await fetchApiFootball(`/fixtures?date=${today}`);
+    const today = new Date().toISOString().split("T")[0];
+    const data = await fetchApiFootball(`/fixtures?date=${today}`);
 
-  cache.today = { data, time: Date.now() };
-  res.json(data);
+    cache.today = { data, time: Date.now() };
+    res.json(data);
+  } catch {
+    res.json([]);
+  }
 });
 
 // ============================
-// 🏆 STANDINGS MIX
+// STANDINGS
 // ============================
 const mapFD = { 140:"PD",39:"PL",135:"SA",78:"BL1",61:"FL1" };
 
 app.get("/api/standings/:league", async (req, res) => {
-  const league = req.params.league;
+  try {
+    const league = req.params.league;
 
-  if (cache.standings[league] && Date.now() - cache.standings[league].time < 3600000) {
-    return res.json(cache.standings[league].data);
+    if (cache.standings[league] && Date.now() - cache.standings[league].time < 3600000) {
+      return res.json(cache.standings[league].data);
+    }
+
+    let data = [];
+
+    if (mapFD[league]) {
+      const fd = await fetchFootballData(`/competitions/${mapFD[league]}/standings`);
+      data = fd?.standings?.[0]?.table?.map(t => ({
+        team: { name: t.team.name, logo: t.team.crest },
+        points: t.points
+      })) || [];
+    } else {
+      const af = await fetchApiFootball(`/standings?league=${league}&season=2024`);
+      data = af?.[0]?.league?.standings?.[0] || [];
+    }
+
+    cache.standings[league] = { data, time: Date.now() };
+    res.json(data);
+
+  } catch {
+    res.json([]);
   }
-
-  let data;
-
-  if (mapFD[league]) {
-    const fd = await fetchFootballData(`/competitions/${mapFD[league]}/standings`);
-    data = fd.standings[0].table.map(t => ({
-      team:{ name:t.team.name, logo:t.team.crest },
-      points:t.points
-    }));
-  } else {
-    const af = await fetchApiFootball(`/standings?league=${league}&season=2024`);
-
-if (!af || !af.length || !af[0]?.league?.standings) {
-  console.log("Standings vacíos:", af);
-  return res.json([]);
-}
-
-data = af[0].league.standings[0];
-  }
-
-  cache.standings[league] = { data, time: Date.now() };
-  res.json(data);
 });
 
 // ============================
-// DETALLE PARTIDO
+// MATCH DETAIL
 // ============================
 app.get("/api/match/:id", async (req, res) => {
   try {
     const id = req.params.id;
 
-    // PARTIDO
     const match = await fetchApiFootball(`/fixtures?id=${id}`);
+    const events = await fetchApiFootball(`/fixtures/events?fixture=${id}`);
 
-    let events = [];
-
-    try {
-      // 🔥 INTENTA TRAER EVENTOS
-      events = await fetchApiFootball(`/fixtures/events?fixture=${id}`);
-    } catch (err) {
-      console.log("Error cargando eventos:", err.message);
-      events = []; // fallback
-    }
+    if (!match.length) return res.json({ events: [] });
 
     res.json({
       ...match[0],
       events: events || []
     });
 
-  } catch (err) {
-    console.error("ERROR GENERAL:", err.message);
-
-    res.status(200).json({
-      teams: {
-        home: { name: "Error", logo: "" },
-        away: { name: "Error", logo: "" }
-      },
-      goals: { home: 0, away: 0 },
-      fixture: { status: { long: "Error", elapsed: 0 } },
-      events: []
-    });
+  } catch {
+    res.json({ events: [] });
   }
 });
 
+// ============================
+// START
+// ============================
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log("Server running on", PORT));
