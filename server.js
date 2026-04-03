@@ -52,10 +52,23 @@ function isValid(cacheObj, ttl) {
 }
 
 async function fetchApiFootball(url) {
-  const res = await axios.get(`${API_FOOTBALL}${url}`, {
-    headers: { "x-apisports-key": process.env.API_FOOTBALL_KEY }
-  });
-  return res.data.response;
+  try {
+    const res = await axios.get(`${API_FOOTBALL}${url}`, {
+      headers: { "x-apisports-key": process.env.API_FOOTBALL_KEY },
+      timeout: 5000
+    });
+
+    if (!res.data || !res.data.response) {
+      console.log("Respuesta inválida:", res.data);
+      return [];
+    }
+
+    return res.data.response;
+
+  } catch (err) {
+    console.error("API ERROR:", err.message);
+    return []; // 🔥 evita que el server muera
+  }
 }
 
 async function fetchFootballData(url) {
@@ -177,7 +190,13 @@ app.get("/api/standings/:league", async (req, res) => {
     }));
   } else {
     const af = await fetchApiFootball(`/standings?league=${league}&season=2024`);
-    data = af[0].league.standings[0];
+
+if (!af || !af.length || !af[0]?.league?.standings) {
+  console.log("Standings vacíos:", af);
+  return res.json([]);
+}
+
+data = af[0].league.standings[0];
   }
 
   cache.standings[league] = { data, time: Date.now() };
