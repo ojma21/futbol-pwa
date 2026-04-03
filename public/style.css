@@ -1223,3 +1223,66 @@ html {
 .team-away .jersey {
   background: linear-gradient(#ef4444, #7f1d1d);
 }
+
+/* cancha */
+.pitch.tactical {
+  position: relative;
+  height: 500px;
+  background: linear-gradient(#0f3d0f, #0a2a0a);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+/* línea central */
+.pitch.tactical::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  height: 2px;
+  background: rgba(255,255,255,0.2);
+}
+
+/* jugadores posicionados */
+.player-tactical {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+/* LOCAL abajo */
+.player-tactical.home {
+  transform: translate(-50%, -50%) rotate(0deg);
+}
+
+/* VISITANTE arriba (invertido) */
+.player-tactical.away {
+  transform: translate(-50%, -50%) rotate(180deg);
+}
+
+/* camiseta */
+.player-tactical .jersey {
+  width: 34px;
+  height: 38px;
+  border-radius: 6px 6px 10px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+/* colores */
+.player-tactical.home .jersey {
+  background: linear-gradient(#22c55e, #15803d);
+}
+
+.player-tactical.away .jersey {
+  background: linear-gradient(#ef4444, #7f1d1d);
+}
+
+/* nombre */
+.player-tactical .player-name {
+  font-size: 9px;
+  margin-top: 3px;
+}

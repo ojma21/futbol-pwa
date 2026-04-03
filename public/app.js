@@ -545,7 +545,7 @@ function renderLineups(lineups) {
   const away = lineups[1];
 
   return `
-    <div class="pitch">
+    <div class="pitch tactical">
 
       ${renderTeam(home, "home")}
       ${renderTeam(away, "away")}
@@ -555,34 +555,25 @@ function renderLineups(lineups) {
 }
 
 function renderTeam(team, side) {
-  const groups = {
-    GK: [],
-    DF: [],
-    MF: [],
-    FW: []
-  };
+  return team.startXI.map(p => {
 
-  team.startXI.forEach(p => {
-    const pos = p.player.pos;
+    const [row, col] = (p.player.grid || "1:1").split(":");
 
-    if (groups[pos]) {
-      groups[pos].push({
-        name: p.player.name,
-        number: p.player.number
-      });
-    }
-  });
+    return `
+      <div class="player-tactical ${side}"
+           style="top:${row * 12}%; left:${col * 18}%">
 
-  return `
-    <div class="team-${side}">
+        <div class="jersey">
+          ${p.player.number || ""}
+        </div>
 
-      ${renderLine(groups.FW)}
-      ${renderLine(groups.MF)}
-      ${renderLine(groups.DF)}
-      ${renderLine(groups.GK)}
+        <div class="player-name">
+          ${p.player.name.split(" ").slice(-1)}
+        </div>
 
-    </div>
-  `;
+      </div>
+    `;
+  }).join("");
 }
 
 function renderLine(players) {
