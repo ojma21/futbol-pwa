@@ -1036,3 +1036,9 @@ html {
 .icon {
   font-size: 18px;
 }
+
+.league-title {
+  margin: 15px 10px 5px;
+  font-size: 14px;
+  color: #9ca3af;
+}

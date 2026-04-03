@@ -3,14 +3,13 @@ const API = "/api";
 let currentFilter = "all";
 let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
 let notifiedEvents = {}; // para no repetir notificaciones
+let lastScreen = "home";
 
 //------------
 //NAVEGACION TIPO APP
 //------------
 function goTab(tab) {
-
-  document.querySelectorAll(".bottom-nav button").forEach(b => b.classList.remove("active"));
-  document.getElementById("tab_" + tab).classList.add("active");
+  lastScreen = tab; // 🔥 guarda de dónde vienes
 
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
 
@@ -203,72 +202,83 @@ async function loadMatches() {
   let data = [];
 
   if (currentFilter === "live") {
-    data = await fetchData("/live-matches");
-  } else if (currentFilter === "today") {
-    data = await fetchData("/today");
-  } else {
-    const [live, today] = await Promise.all([
-      fetchData("/live-matches"),
-      fetchData("/today")
-    ]);
-    data = [...live, ...today];
-  }
+  data = await fetchData("/live-matches");
+
+} else if (currentFilter === "today") {
+  data = await fetchData("/today");
+
+} else {
+  const [live, today] = await Promise.all([
+    fetchData("/live-matches"),
+    fetchData("/today")
+  ]);
+
+  data = [...live, ...today];
+}
+
+// 🔥 NUEVO: ORDENAR (LIVE ARRIBA)
+data.sort((a, b) => {
+  const liveStates = ["1H", "2H", "HT"];
+
+  const aLive = liveStates.includes(a.fixture.status.short);
+  const bLive = liveStates.includes(b.fixture.status.short);
+
+  return bLive - aLive;
+});
+
+// 🔥 FILTRO POR LIGA (ejemplo)
+if (currentFilter === "laliga") {
+  data = data.filter(m => m.league.id === 140);
+}
 
   renderMatches(data);
   checkNotifications(data);
 }
 
-function renderMatches(data) {
+function renderMatches(matches) {
   const container = document.getElementById("matches");
+  container.innerHTML = "";
 
-  if (!data || !data.length) {
-    container.innerHTML = `<p style="opacity:.6">No hay partidos disponibles</p>`;
+  if (!matches.length) {
+    container.innerHTML = "<p>No hay partidos</p>";
     return;
   }
 
-  container.innerHTML = "";
+  // 🔥 AGRUPAR POR LIGA
+  const grouped = {};
 
-  data.forEach(match => {
-    if (!match.fixture) return;
+  matches.forEach(m => {
+    const league = `${m.league.country} - ${m.league.name}`;
 
-    const isLive = match.fixture.status?.elapsed;
-    const fav = isFavorite(match.fixture.id);
+    if (!grouped[league]) grouped[league] = [];
+    grouped[league].push(m);
+  });
 
-    const div = document.createElement("div");
-    div.className = "match-card";
-    div.classList.add("fade-in");
+  // 🔥 RENDER POR BLOQUES
+  Object.keys(grouped).forEach(league => {
 
-    div.innerHTML = `
-      <div class="league">
-        ${match.league.name}
-        ${isLive ? '<span class="live">● EN VIVO</span>' : ''}
-        <span class="fav" onclick="event.stopPropagation(); toggleFavorite(${match.fixture.id})">
-          ${fav ? "⭐" : "☆"}
-        </span>
-      </div>
+    const leagueDiv = document.createElement("div");
 
-      <div class="match-row" onclick="openMatch(${match.fixture.id})">
-        <div class="team">
-          <img src="${match.teams.home.logo}" width="24">
-          <span>${match.teams.home.name}</span>
-        </div>
-
-        <div class="score">
-          ${match.goals.home ?? "-"} - ${match.goals.away ?? "-"}
-        </div>
-
-        <div class="team">
-          <span>${match.teams.away.name}</span>
-          <img src="${match.teams.away.logo}" width="24">
-        </div>
-      </div>
-
-      <div class="time">
-        ${isLive ? `⏱ ${match.fixture.status.elapsed}'` : "Programado"}
-      </div>
+    leagueDiv.innerHTML = `
+      <h3 class="league-title">${league}</h3>
     `;
 
-    container.appendChild(div);
+    grouped[league].forEach(match => {
+      const div = document.createElement("div");
+      div.className = "match-card";
+
+      div.innerHTML = `
+        <div class="match-row" onclick="openMatch(${match.fixture.id})">
+          <span>${match.teams.home.name}</span>
+          <strong>${match.goals.home ?? "-"} - ${match.goals.away ?? "-"}</strong>
+          <span>${match.teams.away.name}</span>
+        </div>
+      `;
+
+      leagueDiv.appendChild(div);
+    });
+
+    container.appendChild(leagueDiv);
   });
 }
 
@@ -400,7 +410,7 @@ async function openMatch(id) {
       <!-- HEADER -->
       <div class="detail-header">
 
-        <button class="back-btn" onclick="goTab('home')">✕</button>
+        <button class="back-btn" onclick="goBack()">✕</button>
 
         <div class="teams-row">
           <div class="team">
@@ -430,6 +440,11 @@ async function openMatch(id) {
     </div>
   `;
 }
+
+function goBack() {
+  goTab(lastScreen || "home");
+}
+
 
 // ============================
 // eventos
