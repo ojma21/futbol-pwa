@@ -21,48 +21,47 @@
   <button id="loginBtn" onclick="toggleLogin()">Login</button>
 </header>
 
-<!-- LOGIN MODAL -->
+<!-- LOGIN -->
 <div id="authBox" class="auth-modal hidden">
   <div class="auth-container">
-
     <span class="close-modal" onclick="toggleLogin()">✖</span>
-
     <h2>Bienvenido 👋</h2>
-
     <input id="email" placeholder="Correo">
     <input id="password" type="password" placeholder="Contraseña">
-
     <button onclick="login()">Entrar</button>
     <button onclick="register()">Crear cuenta</button>
-
-    <p id="msg"></p>
-
   </div>
 </div>
 
 <!-- APP -->
 <main id="appContent">
 
-  <!-- FILTROS -->
-  <div class="filters">
-  <button onclick="setFilter('all')" id="f_all" class="active">ALL</button>
-  <button onclick="setFilter('live')" id="f_live">🔴 LIVE</button>
-  <button onclick="setFilter('today')" id="f_today">📅 TODAY</button>
-</div>
+  <!-- 🏠 HOME -->
+  <section id="screen_home" class="screen active"></section>
 
+  <!-- ⚽ MATCHES (TODO TU SISTEMA ORIGINAL) -->
+  <section id="screen_matches" class="screen">
 
+    <div class="filters">
+      <button onclick="setFilter('all')" id="f_all" class="active">ALL</button>
+      <button onclick="setFilter('live')" id="f_live">🔴 LIVE</button>
+      <button onclick="setFilter('today')" id="f_today">📅 TODAY</button>
+    </div>
 
-  <!-- PARTIDOS -->
-  <h2 id="matchesTitle">Partidos</h2>
-  <section id="matches"></section>
+    <h2 id="matchesTitle">Partidos</h2>
+    <section id="matches"></section>
 
-  <!-- LIGAS -->
-  <div class="league-tabs" id="leagueTabs"></div>
-  <div id="leagueContent"></div>
+    <div class="league-tabs" id="leagueTabs"></div>
+    <div id="leagueContent"></div>
+
+  </section>
+
+  <!-- 👤 PROFILE -->
+  <section id="screen_profile" class="screen"></section>
 
 </main>
 
-<!-- MODAL PARTIDO -->
+<!-- MODAL (NO TOCADO) -->
 <div id="matchModal" class="modal">
   <div class="modal-content">
     <span onclick="closeModal()">✖</span>

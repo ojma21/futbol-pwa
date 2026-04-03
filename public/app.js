@@ -8,30 +8,79 @@ let notifiedEvents = {}; // para no repetir notificaciones
 //NAVEGACION TIPO APP
 //------------
 function goTab(tab) {
+
   document.querySelectorAll(".bottom-nav button").forEach(b => b.classList.remove("active"));
   document.getElementById("tab_" + tab).classList.add("active");
 
-  const matches = document.getElementById("matches");
-  const leagues = document.getElementById("leagueContent");
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
 
   if (tab === "home") {
-    matches.style.display = "block";
-    leagues.style.display = "none";
-  }
-
-  if (tab === "leagues") {
-    matches.style.display = "none";
-    leagues.style.display = "block";
+    document.getElementById("screen_home").classList.add("active");
+    renderHome();
   }
 
   if (tab === "favorites") {
+    document.getElementById("screen_matches").classList.add("active");
     showFavorites();
   }
 
+  if (tab === "leagues") {
+    document.getElementById("screen_matches").classList.add("active");
+    loadLeagues();
+  }
+
   if (tab === "profile") {
-    alert("Perfil (próximo nivel)");
+    document.getElementById("screen_profile").classList.add("active");
+    renderProfile();
   }
 }
+
+//-----------
+//home
+//-----------
+function renderHome() {
+  const container = document.getElementById("screen_home");
+
+  container.innerHTML = `
+    <div class="stories">
+      <div class="story">🔥</div>
+      <div class="story">⚽</div>
+      <div class="story">🏆</div>
+    </div>
+
+    <div class="card-big">
+      <h3>Partido destacado</h3>
+      <p>Contenido dinámico próximamente</p>
+    </div>
+
+    <div class="news-card">📰 Noticias pronto...</div>
+  `;
+}
+
+//------------
+//perfil
+//------------
+function renderProfile() {
+  const container = document.getElementById("screen_profile");
+
+  const user = localStorage.getItem("user") || "Invitado";
+
+  container.innerHTML = `
+    <div class="profile-header">
+      <div class="avatar-big"></div>
+      <h2>${user}</h2>
+      <p>Nivel 1 🔥</p>
+    </div>
+
+    <div class="profile-menu">
+      <div>📊 Estadísticas</div>
+      <div>🏆 Insignias</div>
+      <div>⚙️ Configuración</div>
+    </div>
+  `;
+}
+
+
 
 //-----------------
 //PANTALLA FAVORITOS REAL
@@ -411,9 +460,12 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("loginBtn").style.display = "none";
   }
 
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/service-worker.js");
-}
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/service-worker.js");
+  }
 
   setInterval(loadMatches, 30000);
+
+  // 🔥 IMPORTANTE
+  goTab("home");
 });
