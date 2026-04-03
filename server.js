@@ -188,12 +188,23 @@ app.get("/api/standings/:league", async (req, res) => {
 // DETALLE PARTIDO
 // ============================
 app.get("/api/match/:id", async (req, res) => {
-  const data = await fetchApiFootball(`/fixtures?id=${req.params.id}`);
-  res.json(data[0]);
-});
+  try {
+    const id = req.params.id;
 
-// ============================
-app.listen(process.env.PORT || 3000, () =>
-  console.log("🚀 SERVER PRO")
-);
+    // 🔹 PARTIDO
+    const match = await fetchApiFootball(`/fixtures?id=${id}`);
+
+    // 🔥 EVENTOS (CLAVE)
+    const events = await fetchApiFootball(`/fixtures/events?fixture=${id}`);
+
+    res.json({
+      ...match[0],
+      events: events || []
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error cargando partido" });
+  }
+});
 
