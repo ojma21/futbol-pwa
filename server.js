@@ -187,7 +187,7 @@ app.get("/api/standings/:league", async (req, res) => {
 // ============================
 // DETALLE PARTIDO
 // ============================
-aapp.get("/api/match/:id", async (req, res) => {
+app.get("/api/match/:id", async (req, res) => {
   try {
     const id = req.params.id;
 
