@@ -1248,6 +1248,7 @@ html {
   position: absolute;
   transform: translate(-50%, -50%);
   text-align: center;
+  width: 60px;
 }
 
 /* LOCAL abajo */
@@ -1297,4 +1298,52 @@ html {
   position: absolute;
   top: 0;
   width: 100%;
+}
+
+button,
+.match-card,
+.league-header,
+.player-tactical {
+  cursor: pointer;
+}
+
+.detail-header {
+  background: linear-gradient(180deg, #0f172a, #020617);
+  padding: 25px;
+  border-bottom: 1px solid #1f2937;
+}
+
+.score {
+  font-size: 42px;
+  font-weight: bold;
+}
+
+.tabs button {
+  transition: all 0.2s;
+}
+
+.tabs button:hover {
+  background: #1f2937;
+}
+
+.pitch.tactical {
+  position: relative;
+  height: 500px;
+  background: radial-gradient(circle, #14532d, #052e16);
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.back-btn {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  background: #111827;
+  border: none;
+  color: white;
+  font-size: 18px;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  cursor: pointer;
 }

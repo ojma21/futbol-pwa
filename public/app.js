@@ -525,15 +525,16 @@ function renderTab(tab) {
 }
 
 function renderStats(stats) {
-  if (!stats.length) return "<p>Sin estadísticas</p>";
+  if (!stats || !stats.length) return "<p>Sin estadísticas</p>";
 
-  const s = stats[0].statistics;
+  const home = stats[0].statistics;
+  const away = stats[1].statistics;
 
-  return s.map(stat => `
+  return home.map((stat, i) => `
     <div class="stat-row">
-      <span>${stat.home}</span>
+      <span>${stat.value || 0}</span>
       <span>${stat.type}</span>
-      <span>${stat.away}</span>
+      <span>${away[i]?.value || 0}</span>
     </div>
   `).join("");
 }
@@ -557,18 +558,13 @@ function renderLineups(lineups) {
 function renderTeam(team, side) {
   return team.startXI.map(p => {
 
-    let row = 1;
-    let col = 1;
+    if (!p.player.grid) return "";
 
-    if (p.player.grid) {
-      const parts = p.player.grid.split(":");
-      row = parseInt(parts[0]);
-      col = parseInt(parts[1]);
-    }
+    const [row, col] = p.player.grid.split(":").map(Number);
 
-    // 🔥 NORMALIZACIÓN REAL
-    const top = (row - 1) * 18 + 10;   // vertical
-    const left = (col - 1) * 20 + 10;  // horizontal
+    // 🔥 ESCALA PERFECTA
+    const top = (row / 5) * 100;
+    const left = (col / 5) * 100;
 
     return `
       <div class="player-tactical ${side}"
@@ -605,7 +601,7 @@ function renderLine(players) {
 }
 
 function goBack() {
-  goTab(lastScreen || "home");
+  loadMatches(); // vuelve a la lista real
 }
 
 
