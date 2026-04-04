@@ -42,19 +42,60 @@ function renderHome() {
   const container = document.getElementById("screen_home");
 
   container.innerHTML = `
+    
+    <!-- 🔍 HEADER -->
+    <div class="home-header">
+      <h2>Inicio</h2>
+      <div class="search-icon">🔍</div>
+    </div>
+
+    <!-- 🔵 STORIES -->
     <div class="stories">
-      <div class="story">🔥</div>
-      <div class="story">⚽</div>
-      <div class="story">🏆</div>
+      ${renderStories()}
     </div>
 
-    <div class="card-big">
-      <h3>Partido destacado</h3>
-      <p>Contenido dinámico próximamente</p>
+    <!-- 📰 NOTICIA PRINCIPAL -->
+    <div class="main-news">
+      <img src="https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a">
+      <h3>Man City y Liverpool lideran la Premier</h3>
+      <p>Las últimas noticias del fútbol mundial</p>
     </div>
 
-    <div class="news-card">📰 Noticias pronto...</div>
+    <!-- 📰 LISTA -->
+    <div class="news-list">
+      ${renderNewsList()}
+    </div>
+
   `;
+}
+
+function renderStories() {
+  const teams = [
+    "Barcelona",
+    "Real Madrid",
+    "PSG",
+    "Inter",
+    "Bayern"
+  ];
+
+  return teams.map(t => `
+    <div class="story">
+      <div class="story-circle"></div>
+      <span>${t}</span>
+    </div>
+  `).join("");
+}
+
+function renderNewsList() {
+  return [1,2,3].map(() => `
+    <div class="news-card">
+      <img src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2">
+      <div>
+        <h4>Fichajes y novedades del mercado</h4>
+        <span>Hace 2 horas</span>
+      </div>
+    </div>
+  `).join("");
 }
 
 //------------
