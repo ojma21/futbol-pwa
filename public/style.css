@@ -1425,3 +1425,46 @@ button,
   border-radius: 50%;
   cursor: pointer;
 }
+
+/* contenedor equipo */
+.team-zone {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 50%;
+}
+
+/* líneas tácticas */
+.tactical-line {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* jugador */
+.player-box {
+  text-align: center;
+}
+
+/* camiseta */
+.jersey {
+  width: 36px;
+  height: 40px;
+  border-radius: 6px;
+  background: #ef4444;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* visitante */
+.away .jersey {
+  background: #22c55e;
+}
+
+/* nombre */
+.name {
+  font-size: 10px;
+  margin-top: 4px;
+}

@@ -609,6 +609,50 @@ function goBack() {
   loadMatches(); // vuelve a la lista real
 }
 
+function drawTeam(team) {
+
+  const lines = {
+    GK: [],
+    DF: [],
+    MF: [],
+    FW: []
+  };
+
+  team.startXI.forEach(p => {
+    const pos = p.player.pos;
+
+    if (lines[pos]) {
+      lines[pos].push(p);
+    }
+  });
+
+  return `
+    ${renderLine(lines.GK)}
+    ${renderLine(lines.DF)}
+    ${renderLine(lines.MF)}
+    ${renderLine(lines.FW)}
+  `;
+}
+
+function renderLine(players) {
+  if (!players.length) return "";
+
+  return `
+    <div class="tactical-line">
+      ${players.map(p => `
+        <div class="player-box">
+          <div class="jersey">
+            ${p.player.number || ""}
+          </div>
+          <div class="name">
+            ${p.player.name.split(" ").pop()}
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
 
 // ============================
 // eventos
