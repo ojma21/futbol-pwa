@@ -1257,7 +1257,7 @@ html {
 
 /* VISITANTE arriba (invertido) */
 .player-tactical.away {
-  transform: translate(-50%, -50%) rotate(180deg);
+  transform: translate(-50%, -50%);
 }
 
 /* camiseta */
@@ -1285,4 +1285,16 @@ html {
 .player-tactical .player-name {
   font-size: 9px;
   margin-top: 3px;
+}
+
+.team-home {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+.team-away {
+  position: absolute;
+  top: 0;
+  width: 100%;
 }

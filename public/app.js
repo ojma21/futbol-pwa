@@ -557,11 +557,22 @@ function renderLineups(lineups) {
 function renderTeam(team, side) {
   return team.startXI.map(p => {
 
-    const [row, col] = (p.player.grid || "1:1").split(":");
+    let row = 1;
+    let col = 1;
+
+    if (p.player.grid) {
+      const parts = p.player.grid.split(":");
+      row = parseInt(parts[0]);
+      col = parseInt(parts[1]);
+    }
+
+    // 🔥 NORMALIZACIÓN REAL
+    const top = (row - 1) * 18 + 10;   // vertical
+    const left = (col - 1) * 20 + 10;  // horizontal
 
     return `
       <div class="player-tactical ${side}"
-           style="top:${row * 12}%; left:${col * 18}%">
+           style="top:${top}%; left:${left}%">
 
         <div class="jersey">
           ${p.player.number || ""}
