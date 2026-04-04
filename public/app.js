@@ -546,10 +546,15 @@ function renderLineups(lineups) {
   const away = lineups[1];
 
   return `
-    <div class="pitch tactical">
+    <div class="pitch">
 
-      ${renderTeam(home, "home")}
-      ${renderTeam(away, "away")}
+      <div class="team-zone home-zone">
+        ${renderTeam(home, "home")}
+      </div>
+
+      <div class="team-zone away-zone">
+        ${renderTeam(away, "away")}
+      </div>
 
     </div>
   `;
