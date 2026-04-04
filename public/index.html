@@ -73,10 +73,35 @@
 <script src="app.js"></script>
 
 <nav class="bottom-nav">
-  <button onclick="goTab('home')" id="tab_home">🏠</button>
-  <button onclick="goTab('favorites')" id="tab_fav">⭐</button>
-  <button onclick="goTab('leagues')" id="tab_leagues">🏆</button>
-  <button onclick="goTab('profile')" id="tab_profile">👤</button>
+
+  <div onclick="goTab('home')" class="nav-item active">
+    <svg viewBox="0 0 24 24">
+      <path d="M3 10L12 3l9 7v10a1 1 0 0 1-1 1h-6v-6H10v6H4a1 1 0 0 1-1-1z"/>
+    </svg>
+    <small>Inicio</small>
+  </div>
+
+  <div onclick="goTab('favorites')" class="nav-item">
+    <svg viewBox="0 0 24 24">
+      <path d="M12 17.3l-5.5 3 1-5.8L3 9.8l5.8-.8L12 3.5l2.2 5.5 5.8.8-4.2 4.7 1 5.8z"/>
+    </svg>
+    <small>Favoritos</small>
+  </div>
+
+  <div onclick="goTab('leagues')" class="nav-item">
+    <svg viewBox="0 0 24 24">
+      <path d="M12 2l3 7h7l-5.5 4 2 7-6.5-4-6.5 4 2-7L2 9h7z"/>
+    </svg>
+    <small>Ligas</small>
+  </div>
+
+  <div onclick="goTab('profile')" class="nav-item">
+    <svg viewBox="0 0 24 24">
+      <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+    </svg>
+    <small>Perfil</small>
+  </div>
+
 </nav>
 
 </body>

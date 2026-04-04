@@ -10,6 +10,7 @@ let lastScreen = "home";
 //------------
 function goTab(tab) {
   lastScreen = tab; // 🔥 guarda de dónde vienes
+  setActiveTab(tab);
 
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
 
@@ -548,12 +549,25 @@ function renderLineups(lineups) {
   return `
     <div class="pitch">
 
-      <div class="team-zone home-zone">
-        ${renderTeam(home, "home")}
+      <!-- ELEMENTOS DEL CAMPO -->
+      <div class="center-circle"></div>
+
+      <div class="box-top"></div>
+      <div class="box-bottom"></div>
+
+      <div class="goal-area-top"></div>
+      <div class="goal-area-bottom"></div>
+
+      <div class="goal-top"></div>
+      <div class="goal-bottom"></div>
+
+      <!-- EQUIPOS -->
+      <div class="team-zone away">
+        ${drawTeam(away)}
       </div>
 
-      <div class="team-zone away-zone">
-        ${renderTeam(away, "away")}
+      <div class="team-zone home">
+        ${drawTeam(home)}
       </div>
 
     </div>
@@ -753,6 +767,20 @@ function logout() {
   document.getElementById("userBox").style.display = "none";
   document.getElementById("loginBtn").style.display = "block";
 }
+
+//--------------
+//CAMBIO COLOR ACTIVO 
+//--------------
+function setActiveTab(tab) {
+  document.querySelectorAll(".nav-item").forEach(el =>
+    el.classList.remove("active")
+  );
+
+  document.querySelector(`[onclick="goTab('${tab}')"]`)
+    ?.classList.add("active");
+}
+
+
 
 // ============================
 // INIT
