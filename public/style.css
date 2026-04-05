@@ -1765,3 +1765,31 @@ button:hover {
   color: #9ca3af;
   font-size: 12px;
 }
+
+.story-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #1f2937;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #22c55e;
+}
+
+.story-circle img {
+  width: 70%;
+  height: 70%;
+  object-fit: contain;
+}
+
+.story {
+  text-align: center;
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+.story:hover .story-circle {
+  transform: scale(1.1);
+  border-color: #16a34a;
+}

@@ -8,6 +8,15 @@ let lastScreen = "home";
 //------------
 //NAVEGACION TIPO APP
 //------------
+function goBack() {
+  goTab('matches'); // 🔥 vuelve a la pantalla real
+}
+
+function goBack() {
+  document.getElementById("screen_matches").innerHTML = "";
+  loadMatches();
+}
+
 function goTab(tab) {
   lastScreen = tab; // 🔥 guarda de dónde vienes
   setActiveTab(tab);
@@ -71,17 +80,34 @@ function renderHome() {
 
 function renderStories() {
   const teams = [
-    "Barcelona",
-    "Real Madrid",
-    "PSG",
-    "Inter",
-    "Bayern"
+    {
+      name: "Barcelona",
+      logo: "https://media.api-sports.io/football/teams/529.png"
+    },
+    {
+      name: "Real Madrid",
+      logo: "https://media.api-sports.io/football/teams/541.png"
+    },
+    {
+      name: "PSG",
+      logo: "https://media.api-sports.io/football/teams/85.png"
+    },
+    {
+      name: "Inter",
+      logo: "https://media.api-sports.io/football/teams/505.png"
+    },
+    {
+      name: "Bayern",
+      logo: "https://media.api-sports.io/football/teams/157.png"
+    }
   ];
 
   return teams.map(t => `
     <div class="story">
-      <div class="story-circle"></div>
-      <span>${t}</span>
+      <div class="story-circle">
+        <img src="${t.logo}">
+      </div>
+      <span>${t.name}</span>
     </div>
   `).join("");
 }
