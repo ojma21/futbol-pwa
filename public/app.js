@@ -12,11 +12,6 @@ function goBack() {
   goTab('matches'); // 🔥 vuelve a la pantalla real
 }
 
-function goBack() {
-  document.getElementById("screen_matches").innerHTML = "";
-  loadMatches();
-}
-
 function goTab(tab) {
   lastScreen = tab; // 🔥 guarda de dónde vienes
   setActiveTab(tab);
@@ -51,31 +46,39 @@ function renderHome() {
   const container = document.getElementById("screen_home");
 
   container.innerHTML = `
-    
-    <!-- 🔍 HEADER -->
+
     <div class="home-header">
       <h2>Inicio</h2>
       <div class="search-icon">🔍</div>
     </div>
 
-    <!-- 🔵 STORIES -->
-    <div class="stories">
-      ${renderStories()}
+    <!-- 🔥 PARTIDOS DESTACADOS -->
+    <div class="featured">
+      ${renderFeaturedMatches()}
     </div>
 
-    <!-- 📰 NOTICIA PRINCIPAL -->
+    <!-- 📰 NOTICIA -->
     <div class="main-news">
       <img src="https://images.unsplash.com/photo-1517927033932-b3d18e61fb3a">
-      <h3>Man City y Liverpool lideran la Premier</h3>
-      <p>Las últimas noticias del fútbol mundial</p>
-    </div>
-
-    <!-- 📰 LISTA -->
-    <div class="news-list">
-      ${renderNewsList()}
+      <h3>Noticias del fútbol mundial</h3>
+      <p>Resultados, fichajes y más</p>
     </div>
 
   `;
+}
+
+async function renderFeaturedMatches() {
+  const matches = await fetchData("/today");
+
+  const top = matches.slice(0, 5);
+
+  return top.map(m => `
+    <div class="featured-card" onclick="openMatch(${m.fixture.id})">
+      <img src="${m.teams.home.logo}">
+      <span>${m.goals.home ?? "-"} - ${m.goals.away ?? "-"}</span>
+      <img src="${m.teams.away.logo}">
+    </div>
+  `).join("");
 }
 
 function renderStories() {
@@ -276,12 +279,13 @@ async function loadMatches() {
   data = await fetchData("/today");
 
 } else {
-  const [live, today] = await Promise.all([
-    fetchData("/live-matches"),
-    fetchData("/today")
-  ]);
+  const [live, today, finished] = await Promise.all([
+  fetchData("/live-matches"),
+  fetchData("/today"),
+  fetchData("/finished")
+]);
 
-  data = [...live, ...today];
+data = [...live, ...today, ...finished];
 }
 
 // 🔥 NUEVO: ORDENAR (LIVE ARRIBA)
@@ -379,7 +383,7 @@ function createMatchCard(match) {
         ${match.teams.home.name}
       </div>
 
-      <div class="score live-score">
+      <div class="score ${match.fixture.status.short === 'FT' ? 'finished' : 'live-score'}">
         ${match.goals.home ?? "-"} - ${match.goals.away ?? "-"}
       </div>
 
@@ -630,11 +634,11 @@ function renderLineups(lineups) {
 
       <!-- EQUIPOS -->
       <div class="team-zone away">
-        ${drawTeam(away)}
+        ${renderTeam(away, "away")}
       </div>
 
       <div class="team-zone home">
-        ${drawTeam(home)}
+        ${renderTeam(home, "home")}
       </div>
 
     </div>
@@ -684,10 +688,6 @@ function renderLine(players) {
       `).join("")}
     </div>
   `;
-}
-
-function goBack() {
-  loadMatches(); // vuelve a la lista real
 }
 
 function drawTeam(team) {
